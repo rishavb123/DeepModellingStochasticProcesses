@@ -1,0 +1,24 @@
+[build-system]
+build-backend = "setuptools.build_meta"
+requires = ["setuptools >= 61.0.0"]
+
+[project]
+name = "dmsp"
+description = "Experiments to test different deep modelling techniques of arbitrary multivariate stochastic processes."
+keywords = ["learning", "modelling", "stochastic", "process"]
+authors = [{ name = "Rishav Bhagat", email = "rishavbhagat.cs@gmail.com" }]
+readme = "README.md"
+dynamic = ["version"]
+requires-python = ">=3.11"
+dependencies = ["experiment-lab"]
+
+[project.urls]
+Repository = "https://github.com/rishavb123/DeepModellingStochasticProcesses"
+
+[project.optional-dependencies]
+all = []
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["dmsp*"]
+namespaces = false

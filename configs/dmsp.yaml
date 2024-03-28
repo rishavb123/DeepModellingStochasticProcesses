@@ -1,0 +1,3 @@
+defaults:
+    - dmsp_config
+    - _self_
