@@ -1,3 +1,10 @@
+experiment_name: dmsp_experiment
+n_runs: 10
+n_run_method: series
+seed: 0
+wandb:
+    project: dmsp
+    mode: disabled
 defaults:
     - dmsp_config
     - _self_

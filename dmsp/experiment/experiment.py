@@ -1,7 +1,10 @@
 from typing import Any
+import logging
 from experiment_lab.core import BaseExperiment
 
 from dmsp.experiment.config import DMSPConfig
+
+logger = logging.getLogger(__name__)
 
 
 class DMSPExperiment(BaseExperiment):
@@ -29,4 +32,4 @@ class DMSPExperiment(BaseExperiment):
         Returns:
             Any: The results from this experiment run.
         """
-        pass
+        logger.info("This is a test!")
