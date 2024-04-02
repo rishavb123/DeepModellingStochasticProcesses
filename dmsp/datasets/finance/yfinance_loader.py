@@ -11,12 +11,18 @@ from dmsp.datasets.base_loader import BaseLoader
 class YFinanceLoader(BaseLoader):
     """Yahoo Finance data loader class."""
 
-    def __init__(self, symbols: List[str], intervals: List[Tuple[str, str]]) -> None:
+    def __init__(
+        self,
+        symbols: List[str],
+        intervals: List[Tuple[str, str]],
+        columns: List[str] | None = None,
+    ) -> None:
         super().__init__(
             f"./data/finance/{'_'.join(symbols)}_{'_'.join([f'{start}to{end}' for (start, end) in intervals])}/"
         )
         self.symbols = symbols
         self.intervals = intervals
+        self.columns = ["Adj Close", "Volume"] if columns is None else columns
 
     def _download_data(self) -> List[np.ndarray]:
         data = []
@@ -24,9 +30,8 @@ class YFinanceLoader(BaseLoader):
             df = yf.download(
                 self.symbols, start=start, end=end
             )  # Download data from yfinance
-            df = df[["Adj Close", "Volume"]]  # Extract price and volume information
+            df = df[self.columns]  # Extract price and volume information
             data.append(df.to_numpy())
-
         return data
 
 
