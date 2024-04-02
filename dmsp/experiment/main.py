@@ -1,3 +1,5 @@
+"""The main experiment entry point."""
+
 from experiment_lab.core import run_experiment
 
 from dmsp.experiment.config import DMSPConfig, register_configs
