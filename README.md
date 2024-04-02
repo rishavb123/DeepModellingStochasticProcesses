@@ -5,8 +5,8 @@ The goal of this project is to create a model that can generate samples of the u
 ## Installation
 
 ```bash
-conda create -n dsmp_env python=3.11 -y
-conda activate dsmp_env
+conda create -n dmsp_env python=3.11 -y
+conda activate dmsp_env
 ```
 
 Install the version of pytorch that is compatible with your hardware using the pip or conda command from their [website](https://pytorch.org/get-started/locally/).
