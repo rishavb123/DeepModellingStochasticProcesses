@@ -15,11 +15,11 @@ class BaseLoader(abc.ABC):
         if os.path.exists(self.path):
             self.data = BaseLoader.read_from_path(self.path)
         else:
-            self.data = self.get_data()
+            self.data = self._download_data()
             self.save_to_path(self.path, self.data)
 
     @abc.abstractmethod
-    def get_data(self) -> List[np.ndarray]:
+    def _download_data(self) -> List[np.ndarray]:
         pass
 
     @staticmethod

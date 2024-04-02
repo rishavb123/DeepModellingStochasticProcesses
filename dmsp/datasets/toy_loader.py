@@ -8,7 +8,7 @@ class ToyLoader(BaseLoader):
     def __init__(self):
         super().__init__(path=f"./data/counting/")
 
-    def get_data(self):
+    def _download_data(self):
         np.random.seed(0)
         return [
             np.arange(100) + np.random.normal(size=100),
