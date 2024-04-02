@@ -1,3 +1,5 @@
+"""The base data loader for the timeseries experiments."""
+
 from typing import List
 
 import abc
@@ -6,12 +8,19 @@ import numpy as np
 
 
 class BaseLoader(abc.ABC):
+    """The BaseLoader class for all timeseries datasets used in this project."""
 
     def __init__(self, path: str) -> None:
+        """The constructor for the data loader.
+
+        Args:
+            path (str): The path to load/save this data set from/to.
+        """
         self.path = path
         self.data: List[np.ndarray] | None = None
 
     def load(self) -> None:
+        """Loads the dataset into memory (either from the disk or using the _download data function). Stores the data in self.data."""
         if os.path.exists(self.path):
             self.data = BaseLoader.read_from_path(self.path)
         else:
@@ -20,14 +29,33 @@ class BaseLoader(abc.ABC):
 
     @abc.abstractmethod
     def _download_data(self) -> List[np.ndarray]:
+        """Downloads the dataset from the internet or manually constructs it.
+
+        Returns:
+            List[np.ndarray]: The dataset.
+        """
         pass
 
     @staticmethod
     def read_from_path(path: str) -> List[np.ndarray]:
+        """Reads a dataset from a specified path.
+
+        Args:
+            path (str): The path to read the dataset from.
+
+        Returns:
+            List[np.ndarray]: The dataset.
+        """
         return [np.load(f"{path}/{fname}") for fname in sorted(os.listdir(path=path))]
 
     @staticmethod
     def save_to_path(path: str, data: List[np.ndarray] | None) -> None:
+        """Saves some data to a specified path.
+
+        Args:
+            path (str): The path to save to.
+            data (List[np.ndarray] | None): The data to save.
+        """
         os.makedirs(path)
         if data is None:
             return

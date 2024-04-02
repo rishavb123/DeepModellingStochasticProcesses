@@ -1,8 +1,11 @@
+"""File for all the config and config registration for dmsp experiments."""
+
 from hydra.core.config_store import ConfigStore
 from experiment_lab.core import BaseConfig
 
 
 class DMSPConfig(BaseConfig):
+    """The config for the dmsp experiment."""
 
     pass
 
