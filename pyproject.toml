@@ -10,7 +10,7 @@ authors = [{ name = "Rishav Bhagat", email = "rishavbhagat.cs@gmail.com" }]
 readme = "README.md"
 dynamic = ["version"]
 requires-python = ">=3.11"
-dependencies = ["experiment-lab"]
+dependencies = ["experiment-lab", "yfinance"]
 
 [project.urls]
 Repository = "https://github.com/rishavb123/DeepModellingStochasticProcesses"
