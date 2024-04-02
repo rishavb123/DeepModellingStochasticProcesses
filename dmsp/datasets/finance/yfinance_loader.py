@@ -17,6 +17,13 @@ class YFinanceLoader(BaseLoader):
         intervals: List[Tuple[str, str]],
         columns: List[str] | None = None,
     ) -> None:
+        """Constructor for the yfinance loader.
+
+        Args:
+            symbols (List[str]): The list of symbols to include in the dataset.
+            intervals (List[Tuple[str, str]]): The time intervals to include.
+            columns (List[str] | None, optional): The columns from the yfinance return to use. Defaults to None.
+        """
         super().__init__(
             f"./data/finance/{'_'.join(symbols)}__{'__'.join([f'{start}_to_{end}' for (start, end) in intervals])}/"
         )
@@ -25,6 +32,11 @@ class YFinanceLoader(BaseLoader):
         self.columns = ["Adj Close", "Volume"] if columns is None else columns
 
     def _download_data(self) -> List[np.ndarray]:
+        """Downloads the dataset using the yfinance download function.
+
+        Returns:
+            List[np.ndarray]: The dataset.
+        """
         data = []
         for start, end in self.intervals:  # Loop through each interval
             df = yf.download(
