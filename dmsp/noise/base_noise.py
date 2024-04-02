@@ -1,12 +1,15 @@
+"""File for the base noise sampler."""
+
 import abc
 import torch
 
 
-class NoiseSampler(abc.ABC):
+class BaseNoise(abc.ABC):
+    """Base noise class."""
 
     def __init__(self) -> None:
         super().__init__()
 
     @abc.abstractmethod
-    def sample(t: torch.Tensor):
+    def sample(t: torch.Tensor) -> torch.Tensor:
         pass
