@@ -18,7 +18,7 @@ class YFinanceLoader(BaseLoader):
         columns: List[str] | None = None,
     ) -> None:
         super().__init__(
-            f"./data/finance/{'_'.join(symbols)}_{'_'.join([f'{start}to{end}' for (start, end) in intervals])}/"
+            f"./data/finance/{'_'.join(symbols)}__{'__'.join([f'{start}_to_{end}' for (start, end) in intervals])}/"
         )
         self.symbols = symbols
         self.intervals = intervals
@@ -45,6 +45,5 @@ if __name__ == "__main__":
         ],
     )
     loader.load()
-    print(loader.data)
     for d in loader.data:
         print(d.shape)
