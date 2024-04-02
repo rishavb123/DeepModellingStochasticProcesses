@@ -1,6 +1,6 @@
 """Data loader for the yfinance module"""
 
-from typing import List, Tuple
+from typing import Any, Dict, List
 
 import numpy as np
 import yfinance as yf
@@ -14,21 +14,21 @@ class YFinanceLoader(BaseLoader):
     def __init__(
         self,
         symbols: List[str],
-        intervals: List[Tuple[str, str]],
+        download_kwargs: List[Dict[str, Any]],
         columns: List[str] | None = None,
     ) -> None:
         """Constructor for the yfinance loader.
 
         Args:
             symbols (List[str]): The list of symbols to include in the dataset.
-            intervals (List[Tuple[str, str]]): The time intervals to include.
+            download_kwargs (List[Dict[str, Any]]): The kwargs to use for each trajectory.
             columns (List[str] | None, optional): The columns from the yfinance return to use. Defaults to None.
         """
         super().__init__(
-            f"./data/finance/{'_'.join(symbols)}__{'__'.join([f'{start}_to_{end}' for (start, end) in intervals])}/"
+            f"./data/finance/{'_'.join(symbols)}__{'__'.join([f'{k}_{kwargs[k]}' for kwargs in download_kwargs for k in kwargs])}/"
         )
         self.symbols = symbols
-        self.intervals = intervals
+        self.download_kwargs = download_kwargs
         self.columns = ["Adj Close", "Volume"] if columns is None else columns
 
     def _download_data(self) -> List[np.ndarray]:
@@ -38,9 +38,9 @@ class YFinanceLoader(BaseLoader):
             List[np.ndarray]: The dataset.
         """
         data = []
-        for start, end in self.intervals:  # Loop through each interval
+        for download_kwargs in self.download_kwargs:
             df = yf.download(
-                self.symbols, start=start, end=end
+                self.symbols, **download_kwargs
             )  # Download data from yfinance
             df = df[self.columns]  # Extract price and volume information
             data.append(df.to_numpy())
@@ -50,10 +50,10 @@ class YFinanceLoader(BaseLoader):
 if __name__ == "__main__":
     loader = YFinanceLoader(
         symbols=["SPY", "AAPL"],
-        intervals=[
-            ("2022-01-01", "2022-12-31"),
-            ("2019-01-01", "2021-12-31"),
-            ("2023-01-01", "2023-12-31"),
+        download_kwargs=[
+            {"start": "2022-01-01", "end": "2022-12-31"},
+            {"start": "2019-01-01", "end": "2021-12-31"},
+            {"start": "2023-01-01", "end": "2023-12-31"},
         ],
     )
     loader.load()
