@@ -49,7 +49,7 @@ class YFinanceLoader(BaseLoader):
 
 if __name__ == "__main__":
     loader = YFinanceLoader(
-        symbols=["SPY", "AAPL"],
+        symbols=["SPY", "AMZN", "QQQ", "MSFT"],
         download_kwargs=[
             {"start": "2022-01-01", "end": "2022-12-31"},
             {"start": "2019-01-01", "end": "2021-12-31"},
