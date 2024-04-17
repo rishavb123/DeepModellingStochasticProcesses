@@ -41,8 +41,32 @@ class WienerLoader(BaseLoader):
         return list(data)
 
 
+class VolatileWienerLoader(WienerLoader):
+
+    def __init__(
+        self,
+        mu: float,
+        std: float,
+        initial_value: float = 0,
+        num_traj: int = 100,
+        traj_length: int = 100,
+        thresh: float = 1.0,
+    ) -> None:
+        super().__init__(mu, std, initial_value, num_traj, traj_length)
+        self.thresh = thresh
+        self.path = f"{self.path}_{self.thresh}"
+
+    def _download_data(self) -> List[np.ndarray]:
+        data = super()._download_data()
+        for i in range(len(data)):
+            diff = np.diff(np.concatenate(([0], data[i])))
+            diff[np.abs(diff) > self.thresh] *= 2
+            data[i] = diff.cumsum()
+        return data
+
+
 if __name__ == "__main__":
-    loader = WienerLoader(
+    loader = VolatileWienerLoader(
         mu=0.05,
         std=10,
         initial_value=0,
