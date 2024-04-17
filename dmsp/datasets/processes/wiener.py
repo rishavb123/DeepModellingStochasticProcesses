@@ -8,7 +8,7 @@ import numpy as np
 from dmsp.datasets.base_loader import BaseLoader
 
 
-class WeinerLoader(BaseLoader):
+class WienerLoader(BaseLoader):
 
     def __init__(
         self,
@@ -42,7 +42,7 @@ class WeinerLoader(BaseLoader):
 
 
 if __name__ == "__main__":
-    loader = WeinerLoader(
+    loader = WienerLoader(
         mu=0.05,
         std=10,
         initial_value=0,
