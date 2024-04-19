@@ -2,6 +2,8 @@
 
 from typing import Any
 import logging
+import wandb
+import numpy as np
 from experiment_lab.core import BaseExperiment
 
 from dmsp.experiment.config import DMSPConfig
@@ -20,6 +22,11 @@ class DMSPExperiment(BaseExperiment):
     def initialize_experiment(self) -> None:
         """Initializes the experiment that is about to get run."""
         super().initialize_experiment()
+        self.wandb_mode = (
+            self.cfg.wandb["mode"]
+            if self.cfg.wandb is not None and "mode" in self.cfg.wandb
+            else (None if self.cfg.wandb is not None else "disabled")
+        )
 
     def single_run(
         self, run_id: str, run_output_path: str, seed: int | None = None
@@ -35,3 +42,5 @@ class DMSPExperiment(BaseExperiment):
             Any: The results from this experiment run.
         """
         logger.info("This is a test!")
+        if self.wandb_mode != "disabled":
+            wandb.log({"test": np.random.normal()})
