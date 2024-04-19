@@ -4,6 +4,7 @@ from typing import List
 
 import abc
 import os
+import shutil
 import numpy as np
 
 
@@ -19,11 +20,17 @@ class BaseLoader(abc.ABC):
         self.path = path
         self.data: List[np.ndarray] | None = None
 
-    def load(self) -> None:
-        """Loads the dataset into memory (either from the disk or using the _download data function). Stores the data in self.data."""
-        if os.path.exists(self.path):
+    def load(self, force_redownload: bool = False) -> None:
+        """Loads the dataset into memory (either from the disk or using the _download data function). Stores the data in self.data.
+
+        Args:
+            force_redownload (bool, optional): Whether or not to force a redownload of the data. Defaults to False.
+        """
+        if os.path.exists(self.path) and not force_redownload:
             self.data = BaseLoader.read_from_path(self.path)
         else:
+            if os.path.exists(self.path):
+                shutil.rmtree(self.path)
             self.data = self._download_data()
             self.save_to_path(self.path, self.data)
 
