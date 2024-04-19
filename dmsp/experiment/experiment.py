@@ -3,10 +3,13 @@
 from typing import Any
 import logging
 import wandb
+import hydra
 import numpy as np
 from experiment_lab.core import BaseExperiment
 
 from dmsp.experiment.config import DMSPConfig
+from dmsp.models.base_model import BaseModel
+from dmsp.datasets.base_loader import BaseLoader
 
 logger = logging.getLogger(__name__)
 
@@ -27,6 +30,10 @@ class DMSPExperiment(BaseExperiment):
             if self.cfg.wandb is not None and "mode" in self.cfg.wandb
             else (None if self.cfg.wandb is not None else "disabled")
         )
+
+        self.model: BaseModel = hydra.utils.instantiate(self.cfg.model)
+        self.data_loader: BaseLoader = hydra.utils.instantiate(self.cfg.data_loader)
+        self.data_loader.load(force_redownload=self.cfg.force_redownload_dataset)
 
     def single_run(
         self, run_id: str, run_output_path: str, seed: int | None = None
