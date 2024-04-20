@@ -7,7 +7,7 @@ import numpy as np
 import torch
 
 
-class BaseModel(abc.ABC):
+class BaseTrainer(abc.ABC):
     """Abstract class for stochastic time series sampling models."""
 
     def __init__(self) -> None:
@@ -43,6 +43,15 @@ class BaseModel(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def load_model(self, path: str) -> None:
+        """Loads the model from a specified path.
+
+        Args:
+            path (str): The path to load the model from.
+        """
+        pass
+
+    @abc.abstractmethod
     def train(self, train_batch: torch.Tensor) -> Dict[str, float]:
         """Trains the model using a batch of data.
 
@@ -60,15 +69,6 @@ class BaseModel(abc.ABC):
 
         Args:
             path (str): The path to save the model to.
-        """
-        pass
-
-    @abc.abstractmethod
-    def load(self, path: str) -> None:
-        """Loads the model from a specified path.
-
-        Args:
-            path (str): The path to load the model from.
         """
         pass
 
