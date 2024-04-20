@@ -1,23 +1,4 @@
 experiment_name: toy_experiment
-data_loader:
-    _target_: dmsp.datasets.toy_loader.ToyLoader
-trainer:
-    _target_: dmsp.models.trainers.stochasticity_loss_trainer.StochasticityLossTrainer
-    device: mps
-    lookback: 3
-    prediction_model:
-        _target_: experiment_lab.common.networks.create_mlp_network
-        layer_sizes:
-            - 3
-            - 3
-            - 1
-        layer_activations:
-            _target_: torch.nn.LeakyReLU
-            negative_slope: 0.01
-        final_activation:
-            _target_: torch.nn.LeakyReLU
-            negative_slope: 0.01
-    optimizer_cls: torch.optim.Adam
 load_model_from_path: true
 train_model: false
 eval_model: false
@@ -31,4 +12,6 @@ n_epochs: 2500
 n_epochs_per_save: 10000
 defaults:
     - dmsp
+    - data_loader/toy
+    - trainer/slt
     - _self_
