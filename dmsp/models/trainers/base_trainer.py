@@ -56,6 +56,15 @@ class BaseTrainer(abc.ABC):
         pass
 
     @abc.abstractmethod
+    def save_model(self, path: str) -> None:
+        """Saves the model to a specified path.
+
+        Args:
+            path (str): The path to save the model to.
+        """
+        pass
+
+    @abc.abstractmethod
     def train(self, train_batch: torch.Tensor | List[torch.Tensor]) -> Dict[str, float]:
         """Trains the model using a batch of data.
 
@@ -66,15 +75,6 @@ class BaseTrainer(abc.ABC):
             Dict[str, float]: Any training metrics to log.
         """
         return {}
-
-    @abc.abstractmethod
-    def save_model(self, path: str) -> None:
-        """Saves the model to a specified path.
-
-        Args:
-            path (str): The path to save the model to.
-        """
-        pass
 
     def eval(
         self, eval_batch: torch.Tensor, visualize: bool = False
