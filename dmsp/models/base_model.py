@@ -1,8 +1,9 @@
 """Python file for the base model class to define the overall api for our models."""
 
-from typing import Dict
+from typing import Dict, List
 
 import abc
+import numpy as np
 import torch
 
 
@@ -13,7 +14,8 @@ class BaseModel(abc.ABC):
         """Constructor for a model"""
         super().__init__()
 
-    def preprocess(self, batch_data: torch.Tensor) -> torch.Tensor:
+    @abc.abstractmethod
+    def preprocess(self, trajectory_list: List[np.ndarray]) -> torch.Tensor:
         """The data preprocessor for this model.
 
         Args:
@@ -22,7 +24,7 @@ class BaseModel(abc.ABC):
         Returns:
             torch.Tensor: The preprocessed data.
         """
-        return batch_data
+        pass
 
     @abc.abstractmethod
     def sample(
@@ -51,7 +53,7 @@ class BaseModel(abc.ABC):
             Dict[str, float]: Any training metrics to log.
         """
         return {}
-    
+
     @abc.abstractmethod
     def save(self, path: str) -> None:
         """Saves the model to a specified path.
