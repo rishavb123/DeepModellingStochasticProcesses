@@ -3,17 +3,19 @@
 from typing import Any, Dict
 
 from omegaconf import MISSING
+from dataclasses import dataclass
 from hydra.core.config_store import ConfigStore
 from experiment_lab.core import BaseConfig
 
 
+@dataclass
 class DMSPConfig(BaseConfig):
     """The config for the dmsp experiment."""
 
-    trainer: Dict[str, Any] = MISSING
-
     data_loader: Dict[str, Any] = MISSING
     force_redownload_dataset: bool = False
+
+    trainer: Dict[str, Any] = MISSING
 
     load_model_from_path: bool = False
     model_path_to_load_from: str | None = None
@@ -24,7 +26,8 @@ class DMSPConfig(BaseConfig):
     test_proportion: float = 0.2
 
     batch_size: int = 64
-    num_epochs: int = 10
+    n_epochs: int = 10
+    n_epochs_per_save: int = 10
 
     def __post_init__(self) -> None:
         assert (

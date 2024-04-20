@@ -48,7 +48,7 @@ class StochasticityLossTrainer(BaseTrainer):
 
         for traj in trajectory_list:
             for t in range(self.lookback + 1, traj.shape[0]):
-                X.append(np.diff(traj[t - self.lookback - 1 : t, :]).flatten())
+                X.append(np.diff(traj[t - self.lookback - 1 : t, :], axis=0).flatten())
                 y.append(traj[t, :] - traj[t - 1, :])
 
         X = np.array(X)
@@ -58,6 +58,14 @@ class StochasticityLossTrainer(BaseTrainer):
         y = torch.tensor(y, device=self.device, dtype=self.dtype)
 
         return torch.utils.data.TensorDataset(X, y)
+
+    def sample(
+        self,
+        trajectory_list: List[np.ndarray],
+        n_samples: int = 1,
+        traj_length: int = 1,
+    ) -> List[np.ndarray]:
+        pass
 
     def load_model(self, path: str) -> None:
         self.prediction_model.load_state_dict(torch.load(path))

@@ -48,7 +48,7 @@ class DMSPExperiment(BaseExperiment):
             dict_to_log (Dict[str, Any]): The dictionary to log.
         """
         logger.info(json.dumps(dict_to_log))
-        if self.wandb_mode:
+        if self.wandb_mode != "disabled":
             wandb.log(dict_to_log)
 
     def single_run(
@@ -66,7 +66,7 @@ class DMSPExperiment(BaseExperiment):
         """
         # Initialize variables
         trainer: BaseTrainer = hydra.utils.instantiate(self.cfg.trainer)
-        start_epoch = 0
+        start_epoch = 1
 
         # Load model weights
         if self.cfg.load_model_from_path:
@@ -107,19 +107,31 @@ class DMSPExperiment(BaseExperiment):
 
         # Train the model
         if self.cfg.train_model:
-            for epoch in range(start_epoch, start_epoch + self.cfg.num_epochs):
+            os.makedirs(f"{run_output_path}/models")
+            for epoch in range(start_epoch, start_epoch + self.cfg.n_epochs):
                 train_metrics = {}
                 for train_batch in train_dataloader:
                     m = trainer.train(train_batch=train_batch)
+                    cur_batch_size = (
+                        train_batch.shape[0]
+                        if isinstance(train_batch, torch.Tensor)
+                        else train_batch[0].shape[0]
+                    )
                     for k in m:
                         if k not in train_metrics:
                             train_metrics[k] = []
-                        train_metrics[k].append(m[k])
-                train_metrics = {k: np.mean(train_metrics[k]) for k in train_metrics}
+                        train_metrics[k].append(m[k] * cur_batch_size)
+                train_metrics = {
+                    k: np.sum(train_metrics[k]) / len(train_dataset)
+                    for k in train_metrics
+                }
 
-                save_model_path = f"{run_output_path}/models/epoch_{epoch}.pt"
-                os.makedirs(save_model_path)
-                trainer.save_model(save_model_path)
+                if (
+                    epoch % self.cfg.n_epochs_per_save == 0
+                    or epoch == start_epoch + self.cfg.n_epochs - 1
+                ):
+                    save_model_path = f"{run_output_path}/models/epoch_{epoch}.pt"
+                    trainer.save_model(save_model_path)
 
                 test_metrics = {}
                 for eval_batch in test_dataloader:
