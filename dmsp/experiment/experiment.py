@@ -64,14 +64,15 @@ class DMSPExperiment(BaseExperiment):
         Returns:
             Any: The results from this experiment run.
         """
+        # Initialize variables
         trainer: BaseTrainer = hydra.utils.instantiate(self.cfg.trainer)
-
         start_epoch = 0
 
+        # Load model weights
         if self.cfg.load_model_from_path:
             if self.cfg.model_path_to_load_from is None:
                 root_output_dir = Path(self.output_directory).parent.parent.absolute()
-                glob_results = sorted(glob.glob(f"{root_output_dir}/*/*/models/*"))
+                glob_results = sorted(glob.glob(f"{root_output_dir}/*/*/models/*.pt"))
                 if len(glob_results) == 0:
                     raise ValueError(
                         "Cannot load model from output directory since there are no other saved models in the output directory."
@@ -80,10 +81,11 @@ class DMSPExperiment(BaseExperiment):
             else:
                 model_path = self.cfg.model_path_to_load_from
             lst = model_path.split("_")
-            if len(lst) > 1 and lst[1].isdigit():
-                start_epoch = int(lst[1])
+            if len(lst) > 1 and lst[1].split(".")[0].isdigit():
+                start_epoch = int(lst[1].split(".")[0])
             trainer.load_model(model_path)
 
+        # Process and prepare the dataset
         if 0 < self.cfg.test_proportion < 1:
             train_trajs, test_trajs = self.data_loader.split_data(
                 (1 - self.cfg.test_proportion, self.cfg.test_proportion)
@@ -103,6 +105,7 @@ class DMSPExperiment(BaseExperiment):
             dataset=test_dataset, batch_size=len(test_dataset), shuffle=True
         )
 
+        # Train the model
         if self.cfg.train_model:
             for epoch in range(start_epoch, start_epoch + self.cfg.num_epochs):
                 train_metrics = {}
@@ -114,7 +117,7 @@ class DMSPExperiment(BaseExperiment):
                         train_metrics[k].append(m[k])
                 train_metrics = {k: np.mean(train_metrics[k]) for k in train_metrics}
 
-                save_model_path = f"{run_output_path}/models/epoch_{epoch}"
+                save_model_path = f"{run_output_path}/models/epoch_{epoch}.pt"
                 os.makedirs(save_model_path)
                 trainer.save_model(save_model_path)
 
@@ -123,6 +126,7 @@ class DMSPExperiment(BaseExperiment):
                     test_metrics = trainer.eval(eval_batch=eval_batch, visualize=False)
                 self.log_values({"epoch": epoch, **train_metrics, **test_metrics})
 
+        # Evaluate the model
         if self.cfg.eval_model:
             test_metrics = {}
             for eval_batch in test_dataloader:
