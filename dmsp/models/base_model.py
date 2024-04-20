@@ -51,6 +51,24 @@ class BaseModel(abc.ABC):
             Dict[str, float]: Any training metrics to log.
         """
         return {}
+    
+    @abc.abstractmethod
+    def save(self, path: str) -> None:
+        """Saves the model to a specified path.
+
+        Args:
+            path (str): The path to save the model to.
+        """
+        pass
+
+    @abc.abstractmethod
+    def load(self, path: str) -> None:
+        """Loads the model from a specified path.
+
+        Args:
+            path (str): The path to load the model from.
+        """
+        pass
 
     def eval(self, eval_batch: torch.Tensor) -> Dict[str, float]:
         """The evaluation method of the model. Takes in a batch to perform evaluation on and then returns eval metrics.
