@@ -1,6 +1,6 @@
 """The base data loader for the timeseries experiments."""
 
-from typing import List
+from typing import List, Tuple
 
 import abc
 import os
@@ -41,6 +41,10 @@ class BaseLoader(abc.ABC):
         Returns:
             List[np.ndarray]: The dataset.
         """
+        pass
+
+    @abc.abstractmethod
+    def split_data(self, split_proportions: Tuple[float]) -> Tuple[List[np.ndarray]]:
         pass
 
     @staticmethod
