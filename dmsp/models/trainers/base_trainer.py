@@ -1,28 +1,29 @@
-"""Python file for the base model class to define the overall api for our models."""
+"""Python file for the base model trainer class to define the overall api for our models."""
 
 from typing import Dict, List
 
 import abc
 import numpy as np
 import torch
+import torch.utils.data
 
 
 class BaseTrainer(abc.ABC):
-    """Abstract class for stochastic time series sampling models."""
+    """Abstract class for training stochastic time series sampling models."""
 
     def __init__(self) -> None:
-        """Constructor for a model"""
+        """Constructor for a model trainer"""
         super().__init__()
 
     @abc.abstractmethod
-    def preprocess(self, trajectory_list: List[np.ndarray]) -> torch.Tensor:
-        """The data preprocessor for this model.
+    def preprocess(self, trajectory_list: List[np.ndarray]) -> torch.utils.data.Dataset:
+        """The data preprocessor for this model trainer.
 
         Args:
-            batch_data (torch.Tensor): The batch of data to preprocess.
+            trajectory_list (List[np.ndarray]): The list of trajectories.
 
         Returns:
-            torch.Tensor: The preprocessed data.
+            torch.utils.data.Dataset: The torch dataset compatible with this trainer.
         """
         pass
 
@@ -64,7 +65,7 @@ class BaseTrainer(abc.ABC):
         return {}
 
     @abc.abstractmethod
-    def save(self, path: str) -> None:
+    def save_model(self, path: str) -> None:
         """Saves the model to a specified path.
 
         Args:
