@@ -1,3 +1,4 @@
+experiment_name: toy_experiment
 data_loader:
     _target_: dmsp.datasets.toy_loader.ToyLoader
 trainer:

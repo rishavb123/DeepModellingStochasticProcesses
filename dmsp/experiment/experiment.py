@@ -73,7 +73,11 @@ class DMSPExperiment(BaseExperiment):
         if self.cfg.load_model_from_path:
             if self.cfg.model_path_to_load_from is None:
                 root_output_dir = Path(self.output_directory).parent.parent.absolute()
-                glob_results = sorted(glob.glob(f"{root_output_dir}/*/*/*/models/*.pt"))
+                glob_results = sorted(
+                    glob.glob(
+                        f"{root_output_dir}/*/*/{self.cfg.experiment_name}*/models/*.pt"
+                    )
+                )
                 if len(glob_results) == 0:
                     raise ValueError(
                         "Cannot load model from output directory since there are no other saved models in the output directory."
