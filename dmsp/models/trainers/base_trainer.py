@@ -29,17 +29,20 @@ class BaseTrainer(abc.ABC):
 
     @abc.abstractmethod
     def sample(
-        self, batch_data: torch.Tensor, n_samples: int = 1, traj_length: int = 1
-    ) -> torch.Tensor:
-        """Generates samples using the underlying model on a batch of data.
+        self,
+        trajectory_list: List[np.ndarray],
+        n_samples: int = 1,
+        traj_length: int = 1,
+    ) -> List[np.ndarray]:
+        """Generates samples using the model on a list of trajectories.
 
         Args:
-            batch_data (torch.Tensor): The preprocessed batch of data to condition on and generate future samples for.
-            n_samples (int, optional): The number of samples to generate. Defaults to 1.
-            traj_length (int, optional): The length of the trajectories to generate. Defaults to 1.
+            trajectory_list (List[np.ndarray]): The list of trajectories to continue on.
+            n_samples (int, optional): The numbers of samples to generate per trajectory. Defaults to 1.
+            traj_length (int, optional): The length of each continuation trajectory to generate per sample. Defaults to 1.
 
         Returns:
-            torch.Tensor: The future trajectory samples.
+            List[np.ndarray]: The list of continuation trajectory samples for each trajectory in the input. Each ndarray should be of shape (n_samples, traj_length, d) where d is the dimension of each step.
         """
         pass
 
