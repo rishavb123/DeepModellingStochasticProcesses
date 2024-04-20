@@ -45,6 +45,14 @@ class BaseLoader(abc.ABC):
 
     @abc.abstractmethod
     def split_data(self, split_proportions: List[float]) -> List[List[np.ndarray]]:
+        """Splits the data into the proportions specified by the input while maintaining an ordering.
+
+        Args:
+            split_proportions (List[float]): The split proportions (ordered by older data to newer data).
+
+        Returns:
+            List[List[np.ndarray]]: The data split as specified.
+        """
         pass
 
     @staticmethod
