@@ -15,7 +15,21 @@ class DMSPConfig(BaseConfig):
     data_loader: Dict[str, Any] = MISSING
     force_redownload_dataset: bool = False
 
+    load_model_from_path: bool = False
+    model_path_to_load_from: str | None = None
+
+    train_model: bool = True
+    eval_model: bool = True
+
+    test_proportion: float = 0.2
+
+    batch_size: int = 64
+    num_epochs: int = 10
+
     def __post_init__(self) -> None:
+        assert (
+            0 <= self.test_proportion <= 1
+        ), "Test proportion must be between 0 and 1."
         return super().__post_init__()
 
 
