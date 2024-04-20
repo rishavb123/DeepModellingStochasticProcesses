@@ -64,7 +64,7 @@ class DMSPExperiment(BaseExperiment):
         Returns:
             Any: The results from this experiment run.
         """
-        trainer: BaseTrainer = hydra.utils.instantiate(self.cfg.model)
+        trainer: BaseTrainer = hydra.utils.instantiate(self.cfg.trainer)
 
         start_epoch = 0
 

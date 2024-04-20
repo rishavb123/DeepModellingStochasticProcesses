@@ -10,7 +10,7 @@ from experiment_lab.core import BaseConfig
 class DMSPConfig(BaseConfig):
     """The config for the dmsp experiment."""
 
-    model: Dict[str, Any] = MISSING
+    trainer: Dict[str, Any] = MISSING
 
     data_loader: Dict[str, Any] = MISSING
     force_redownload_dataset: bool = False
