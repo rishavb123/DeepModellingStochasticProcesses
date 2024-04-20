@@ -135,12 +135,14 @@ class DMSPExperiment(BaseExperiment):
 
                 test_metrics = {}
                 for eval_batch in test_dataloader:
-                    test_metrics = trainer.eval(eval_batch=eval_batch, visualize=False)
+                    test_metrics = trainer.eval(eval_batch=eval_batch)
                 self.log_values({"epoch": epoch, **train_metrics, **test_metrics})
 
         # Evaluate the model
         if self.cfg.eval_model:
             test_metrics = {}
             for eval_batch in test_dataloader:
-                test_metrics = trainer.eval(eval_batch=eval_batch, visualize=True)
+                test_metrics = trainer.eval(eval_batch=eval_batch)
             logger.info(f"final eval metrics: {json.dumps(test_metrics)}")
+
+

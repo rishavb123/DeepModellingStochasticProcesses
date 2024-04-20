@@ -108,12 +108,7 @@ class StochasticityLossTrainer(BaseTrainer):
 
         return {"train/loss": loss.item()}
 
-    def eval(
-        self, eval_batch: List[torch.Tensor], visualize: bool = False
-    ) -> Dict[str, float]:
-        if visualize:
-            logger.info("No visualization for this trainer yet!")
-
+    def eval(self, eval_batch: List[torch.Tensor]) -> Dict[str, float]:
         X, y = eval_batch
 
         with torch.no_grad():
