@@ -33,6 +33,7 @@ class BaseTrainer(abc.ABC):
         trajectory_list: List[np.ndarray],
         n_samples: int = 1,
         traj_length: int = 1,
+        sample_from_lookback: int = 0,
     ) -> List[np.ndarray]:
         """Generates samples using the model on a list of trajectories.
 
@@ -40,6 +41,7 @@ class BaseTrainer(abc.ABC):
             trajectory_list (List[np.ndarray]): The list of trajectories to continue on.
             n_samples (int, optional): The numbers of samples to generate per trajectory. Defaults to 1.
             traj_length (int, optional): The length of each continuation trajectory to generate per sample. Defaults to 1.
+            sample_from_lookback (int, optional): Starts the sampling from this many timesteps before the last realized step in the trajectories. Defaults to 0.
 
         Returns:
             List[np.ndarray]: The list of continuation trajectory samples for each trajectory in the input. Each ndarray should be of shape (n_samples, traj_length, d) where d is the dimension of each step.

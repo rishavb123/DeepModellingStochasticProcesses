@@ -17,6 +17,15 @@ trainer:
             _target_: torch.nn.LeakyReLU
             negative_slope: 0.01
     optimizer_cls: torch.optim.Adam
+load_model_from_path: true
+train_model: false
+eval_model: false
+visualize_samples:
+    n_row_samples: 2
+    n_col_samples: 3
+    traj_length: 50
+    sample_from_lookback: 20
+    plot_subset_features: null
 n_epochs: 2500
 n_epochs_per_save: 10000
 defaults:

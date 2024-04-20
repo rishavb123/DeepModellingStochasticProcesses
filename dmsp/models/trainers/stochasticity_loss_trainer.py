@@ -64,13 +64,29 @@ class StochasticityLossTrainer(BaseTrainer):
         trajectory_list: List[np.ndarray],
         n_samples: int = 1,
         traj_length: int = 1,
+        sample_from_lookback: int = 0,
     ) -> List[np.ndarray]:
         n_traj = len(trajectory_list)
         d = trajectory_list[0].shape[1]
 
-        X = [
-            np.diff(traj[-self.lookback - 1 :, :]).flatten() for traj in trajectory_list
-        ]
+        if sample_from_lookback == 0:
+            X = [
+                np.diff(traj[-self.lookback - 1 :, :], axis=0).flatten()
+                for traj in trajectory_list
+            ]
+        else:
+            X = [
+                np.diff(
+                    traj[
+                        -self.lookback
+                        - 1
+                        - sample_from_lookback : -sample_from_lookback,
+                        :,
+                    ],
+                    axis=0,
+                ).flatten()
+                for traj in trajectory_list
+            ]
         X = [X for _ in range(n_samples)]
         X = np.array(X)
         X = torch.tensor(X, device=self.device, dtype=self.dtype).swapaxes(
@@ -80,12 +96,21 @@ class StochasticityLossTrainer(BaseTrainer):
         samples = np.zeros((n_traj, n_samples, 1 + traj_length, d))
 
         for i, traj in enumerate(trajectory_list):
-            samples[i, :, 0, :] = np.repeat(traj[-1:, :], repeats=n_samples, axis=0)
+            if sample_from_lookback == 0:
+                samples[i, :, 0, :] = np.repeat(traj[-1:, :], repeats=n_samples, axis=0)
+            else:
+                samples[i, :, 0, :] = np.repeat(
+                    traj[-1 - sample_from_lookback : -sample_from_lookback, :],
+                    repeats=n_samples,
+                    axis=0,
+                )
 
         for t in range(1, 1 + traj_length):
             with torch.no_grad():
                 yhat: torch.Tensor = self.prediction_model(X)  # (n_traj, n_samples, d)
-            samples[:, :, t, :] = yhat.detach().cpu().numpy()
+                samples[:, :, t, :] = yhat.detach().cpu().numpy()
+                X[:, :, :-d] = X[:, :, d:]
+                X[:, :, -d:] = yhat
 
         return list(samples.cumsum(axis=2)[:, :, 1:, :])
 

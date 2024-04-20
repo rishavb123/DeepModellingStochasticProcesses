@@ -1,11 +1,22 @@
 """File for all the config and config registration for dmsp experiments."""
 
-from typing import Any, Dict
+from typing import Any, Dict, List
 
 from omegaconf import MISSING
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from hydra.core.config_store import ConfigStore
 from experiment_lab.core import BaseConfig
+
+
+@dataclass
+class VisualizeSamples:
+    n_row_samples: int = 2
+    n_col_samples: int = 3
+    traj_length: int = 50
+    sample_from_lookback: int = 10
+    plot_subset_features: List[int] | None = None
+    fig_size_row_multplier: int = 10
+    fig_size_col_multiplier: int = 4
 
 
 @dataclass
@@ -22,6 +33,7 @@ class DMSPConfig(BaseConfig):
 
     train_model: bool = True
     eval_model: bool = True
+    visualize_samples: VisualizeSamples | None = field(default_factory=VisualizeSamples)
 
     test_proportion: float = 0.2
 

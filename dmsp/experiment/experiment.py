@@ -11,6 +11,7 @@ import numpy as np
 from pathlib import Path
 import glob
 import torch
+import matplotlib.pyplot as plt
 
 from experiment_lab.core import BaseExperiment
 
@@ -72,12 +73,12 @@ class DMSPExperiment(BaseExperiment):
         if self.cfg.load_model_from_path:
             if self.cfg.model_path_to_load_from is None:
                 root_output_dir = Path(self.output_directory).parent.parent.absolute()
-                glob_results = sorted(glob.glob(f"{root_output_dir}/*/*/models/*.pt"))
+                glob_results = sorted(glob.glob(f"{root_output_dir}/*/*/*/models/*.pt"))
                 if len(glob_results) == 0:
                     raise ValueError(
                         "Cannot load model from output directory since there are no other saved models in the output directory."
                     )
-                model_path = Path(glob_results[-1])
+                model_path = str(Path(glob_results[-1]).absolute())
             else:
                 model_path = self.cfg.model_path_to_load_from
             lst = model_path.split("_")
@@ -145,4 +146,59 @@ class DMSPExperiment(BaseExperiment):
                 test_metrics = trainer.eval(eval_batch=eval_batch)
             logger.info(f"final eval metrics: {json.dumps(test_metrics)}")
 
+        # Visualize Samples
+        if self.cfg.visualize_samples is not None:
+            d = test_trajs[0].shape[1]
+            cont_trajs = trainer.sample(
+                test_trajs,
+                n_samples=self.cfg.visualize_samples.n_row_samples
+                * self.cfg.visualize_samples.n_col_samples,
+                traj_length=self.cfg.visualize_samples.traj_length,
+                sample_from_lookback=self.cfg.visualize_samples.sample_from_lookback,
+            )
 
+            os.makedirs(f"{run_output_path}/plots")
+            for i, (traj, samples) in enumerate(zip(test_trajs, cont_trajs)):
+                fig, ax = plt.subplots(
+                    self.cfg.visualize_samples.n_row_samples,
+                    self.cfg.visualize_samples.n_col_samples,
+                    figsize=(
+                        self.cfg.visualize_samples.n_row_samples
+                        * self.cfg.visualize_samples.fig_size_row_multplier,
+                        self.cfg.visualize_samples.n_col_samples
+                        * self.cfg.visualize_samples.fig_size_col_multiplier,
+                    ),
+                )
+                handles, labels = None, None
+                for r in range(self.cfg.visualize_samples.n_row_samples):
+                    for c in range(self.cfg.visualize_samples.n_col_samples):
+                        sample_idx = r * self.cfg.visualize_samples.n_row_samples + c
+                        for feature_idx in range(d):
+                            if (
+                                self.cfg.visualize_samples.plot_subset_features is None
+                                or feature_idx
+                                in self.cfg.visualize_samples.plot_subset_features
+                            ):
+                                ax[r][c].plot(
+                                    range(len(traj)),
+                                    traj,
+                                    label=f"{feature_idx}",
+                                )
+                                ax[r][c].plot(
+                                    range(
+                                        len(traj)
+                                        - self.cfg.visualize_samples.sample_from_lookback,
+                                        len(traj)
+                                        - self.cfg.visualize_samples.sample_from_lookback
+                                        + self.cfg.visualize_samples.traj_length,
+                                    ),
+                                    samples[sample_idx, :, feature_idx],
+                                    label=f"pred_{feature_idx}",
+                                )
+                        ax[r][c].set_title(f"Sample {sample_idx}")
+                        ax[r][c].set_xlabel(f"Timesteps")
+                        ax[r][c].set_ylabel(f"Value")
+                        handles, labels = ax[r][c].get_legend_handles_labels()
+                fig.legend(handles, labels)
+                fig.suptitle(f"Trajectory {i}")
+                plt.savefig(f"{run_output_path}/plots/trajectory_{i}_samples.png")
