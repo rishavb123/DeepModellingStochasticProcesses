@@ -1,0 +1,7 @@
+hydra:
+    verbose: true
+wandb:
+    mode: disabled
+defaults:
+    - toy_experiment
+    - _self_

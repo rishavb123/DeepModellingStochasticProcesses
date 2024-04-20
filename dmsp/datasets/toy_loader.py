@@ -22,10 +22,24 @@ class ToyLoader(BaseLoader):
         """
         np.random.seed(0)
         return [
-            np.arange(100) + np.random.normal(size=100),
-            np.arange(3, 52) + 15 + np.random.normal(size=49),
-            np.arange(-100, 0) + 12 + np.random.normal(size=100),
+            x.reshape((*x.shape, 1))
+            for x in [
+                np.arange(100) + np.random.normal(size=100),
+                np.arange(3, 52) + 15 + np.random.normal(size=49),
+                np.arange(-100, 0) + 12 + np.random.normal(size=100),
+            ]
         ]
+
+    def split_data(self, split_proportions: List[float]) -> List[List[np.ndarray]]:
+        """Duplicates the data for train and test sets.
+
+        Args:
+            split_proportions (List[float]): The proportions to use (ignored for this loader).
+
+        Returns:
+            List[List[np.ndarray]]: The list of split datasets.
+        """
+        return [self.data for _ in split_proportions]
 
 
 if __name__ == "__main__":
