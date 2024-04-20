@@ -73,11 +73,14 @@ class BaseTrainer(abc.ABC):
         """
         pass
 
-    def eval(self, eval_batch: torch.Tensor) -> Dict[str, float]:
+    def eval(
+        self, eval_batch: torch.Tensor, visualize: bool = False
+    ) -> Dict[str, float]:
         """The evaluation method of the model. Takes in a batch to perform evaluation on and then returns eval metrics.
 
         Args:
             eval_batch (torch.Tensor): The batch of eval timeseries data.
+            visualize (bool, optional): Whether or not to visualize the predictions. Defaults to False.
 
         Returns:
             Dict[str, float]: Any evaluation metrics to log.
