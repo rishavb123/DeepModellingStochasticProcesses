@@ -1,7 +1,7 @@
 experiment_name: toy_experiment
 load_model_from_path: true
 train_model: false
-eval_model: false
+eval_model: true
 visualize_samples:
     n_row_samples: 2
     n_col_samples: 3

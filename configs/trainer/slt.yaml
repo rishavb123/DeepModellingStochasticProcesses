@@ -11,6 +11,5 @@ prediction_model:
         _target_: torch.nn.LeakyReLU
         negative_slope: 0.01
     final_activation:
-        _target_: torch.nn.LeakyReLU
-        negative_slope: 0.01
+        _target_: torch.nn.Tanh
 optimizer_cls: torch.optim.Adam
