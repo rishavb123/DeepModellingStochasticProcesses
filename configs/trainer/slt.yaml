@@ -17,4 +17,4 @@ noise_model:
 optimizer_cls: torch.optim.Adam
 k: 5
 n_train_generated_samples: 30
-log_mse_loss: true
+use_log_loss_for_backprop: true

@@ -1,4 +1,4 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 import numpy as np
 import torch
@@ -26,7 +26,7 @@ class StochasticityLossTrainer(BaseTrainer):
         optimizer_kwargs: Dict[str, Any] | None = None,
         k: int = 1,
         n_train_generated_samples: int = 30,
-        log_mse_loss: bool = True,
+        use_log_loss_for_backprop: bool = True,
         device: str = "cpu",
         dtype: torch.dtype = torch.float32,
     ) -> None:
@@ -54,7 +54,7 @@ class StochasticityLossTrainer(BaseTrainer):
         self.k = k
         self.n_train_generated_samples = n_train_generated_samples
 
-        self.log_mse_loss = log_mse_loss
+        self.use_log_loss_for_backprop = use_log_loss_for_backprop
         self.mse_loss = torch.nn.MSELoss()
 
     def preprocess(self, trajectory_list: List[np.ndarray]) -> torch.utils.data.Dataset:
@@ -153,7 +153,9 @@ class StochasticityLossTrainer(BaseTrainer):
     def save_model(self, path: str) -> None:
         torch.save(self.prediction_model.state_dict(), path)
 
-    def calculate_loss(self, batch: List[torch.Tensor]) -> torch.Tensor:
+    def calculate_loss(
+        self, batch: List[torch.Tensor]
+    ) -> Tuple[torch.Tensor, torch.Tensor]:
         X, y = batch  # (batch_size, lookback * d), (batch_size, d)
 
         batch_size, d = y.shape
@@ -184,25 +186,27 @@ class StochasticityLossTrainer(BaseTrainer):
         ]  # (batch_size)
         kth_closest_samples = yhats[torch.arange(batch_size), kth_closest_indices, :]
 
-        loss: torch.Tensor = torch.log(self.mse_loss(kth_closest_samples, y))
+        loss: torch.Tensor = self.mse_loss(kth_closest_samples, y)
 
-        if self.log_mse_loss:
-            loss = torch.log(loss)
+        log_loss = torch.log(loss)
 
-        return loss
+        return loss, log_loss
 
     def train(self, train_batch: List[torch.Tensor]) -> torch.Dict[str, float]:
 
         self.optimizer.zero_grad()
 
-        loss = self.calculate_loss(batch=train_batch)
+        loss, log_loss = self.calculate_loss(batch=train_batch)
 
-        loss.backward()
+        if self.use_log_loss_for_backprop:
+            log_loss.backward()
+        else:
+            loss.backward()
         self.optimizer.step()
 
-        return {"train/loss": loss.item()}
+        return {"train/loss": loss.item(), "trian/log_loss": log_loss.item()}
 
     def eval(self, eval_batch: List[torch.Tensor]) -> Dict[str, float]:
         with torch.no_grad():
-            loss = self.calculate_loss(batch=eval_batch)
-        return {"eval/loss": loss.item()}
+            loss, log_loss = self.calculate_loss(batch=eval_batch)
+        return {"eval/loss": loss.item(), "eval/log_loss": log_loss.item()}
