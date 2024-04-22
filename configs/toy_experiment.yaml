@@ -3,8 +3,7 @@ load_model_from_path: false
 train_model: true
 eval_model: true
 visualize_samples:
-    n_row_samples: 2
-    n_col_samples: 3
+    n_samples: 6
     traj_length: 50
     sample_from_lookback: 20
     plot_subset_features: null

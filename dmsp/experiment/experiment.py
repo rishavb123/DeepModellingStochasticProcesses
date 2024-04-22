@@ -155,8 +155,7 @@ class DMSPExperiment(BaseExperiment):
             d = test_trajs[0].shape[1]
             cont_trajs = trainer.sample(
                 test_trajs,
-                n_samples=self.cfg.visualize_samples.n_row_samples
-                * self.cfg.visualize_samples.n_col_samples,
+                n_samples=self.cfg.visualize_samples.n_samples,
                 traj_length=self.cfg.visualize_samples.traj_length,
                 sample_from_lookback=self.cfg.visualize_samples.sample_from_lookback,
             )
@@ -164,45 +163,41 @@ class DMSPExperiment(BaseExperiment):
             os.makedirs(f"{run_output_path}/plots")
             for i, (traj, samples) in enumerate(zip(test_trajs, cont_trajs)):
                 fig, ax = plt.subplots(
-                    self.cfg.visualize_samples.n_row_samples,
-                    self.cfg.visualize_samples.n_col_samples,
+                    d,
+                    self.cfg.visualize_samples.n_samples,
                     figsize=(
-                        self.cfg.visualize_samples.n_row_samples
-                        * self.cfg.visualize_samples.fig_size_row_multplier,
-                        self.cfg.visualize_samples.n_col_samples
+                        d * self.cfg.visualize_samples.fig_size_row_multiplier,
+                        self.cfg.visualize_samples.n_samples
                         * self.cfg.visualize_samples.fig_size_col_multiplier,
                     ),
                 )
-                handles, labels = None, None
-                for r in range(self.cfg.visualize_samples.n_row_samples):
-                    for c in range(self.cfg.visualize_samples.n_col_samples):
-                        sample_idx = r * self.cfg.visualize_samples.n_row_samples + c
-                        for feature_idx in range(d):
-                            if (
-                                self.cfg.visualize_samples.plot_subset_features is None
-                                or feature_idx
-                                in self.cfg.visualize_samples.plot_subset_features
-                            ):
-                                ax[r][c].plot(
-                                    range(len(traj)),
-                                    traj,
-                                    label=f"{feature_idx}",
-                                )
-                                ax[r][c].plot(
-                                    range(
-                                        len(traj)
-                                        - self.cfg.visualize_samples.sample_from_lookback,
-                                        len(traj)
-                                        - self.cfg.visualize_samples.sample_from_lookback
-                                        + self.cfg.visualize_samples.traj_length,
-                                    ),
-                                    samples[sample_idx, :, feature_idx],
-                                    label=f"pred_{feature_idx}",
-                                )
-                        ax[r][c].set_title(f"Sample {sample_idx}")
-                        ax[r][c].set_xlabel(f"Timesteps")
-                        ax[r][c].set_ylabel(f"Value")
-                        handles, labels = ax[r][c].get_legend_handles_labels()
-                fig.legend(handles, labels)
+                for feature_idx in range(d):
+                    for sample_idx in range(self.cfg.visualize_samples.n_samples):
+                        if (
+                            self.cfg.visualize_samples.plot_subset_features is None
+                            or feature_idx
+                            in self.cfg.visualize_samples.plot_subset_features
+                        ):
+                            ax[feature_idx][sample_idx].plot(
+                                range(len(traj)),
+                                traj[:, feature_idx],
+                                label=f"ground_truth",
+                            )
+                            ax[feature_idx][sample_idx].plot(
+                                range(
+                                    len(traj)
+                                    - self.cfg.visualize_samples.sample_from_lookback,
+                                    len(traj)
+                                    - self.cfg.visualize_samples.sample_from_lookback
+                                    + self.cfg.visualize_samples.traj_length,
+                                ),
+                                samples[sample_idx, :, feature_idx],
+                                label=f"pred_sample",
+                            )
+                        ax[feature_idx][sample_idx].set_title(
+                            f"Sample {sample_idx}; Feature {feature_idx}"
+                        )
+                        ax[feature_idx][sample_idx].set_xlabel(f"Timesteps")
+                        ax[feature_idx][sample_idx].set_ylabel(f"Value")
                 fig.suptitle(f"Trajectory {i}")
                 plt.savefig(f"{run_output_path}/plots/trajectory_{i}_samples.png")

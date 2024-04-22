@@ -10,12 +10,11 @@ from experiment_lab.core import BaseConfig
 
 @dataclass
 class VisualizeSamples:
-    n_row_samples: int = 2
-    n_col_samples: int = 3
+    n_samples: int = 3
     traj_length: int = 50
     sample_from_lookback: int = 10
     plot_subset_features: List[int] | None = None
-    fig_size_row_multplier: int = 10
+    fig_size_row_multiplier: int = 10
     fig_size_col_multiplier: int = 4
 
 
