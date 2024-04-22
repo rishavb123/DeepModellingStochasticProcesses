@@ -8,8 +8,8 @@ visualize_samples:
     traj_length: 50
     sample_from_lookback: 40
     plot_subset_features: null
-n_epochs: 100
-n_epochs_per_save: 10
+n_epochs: 30
+n_epochs_per_save: 50
 defaults:
     - dmsp
     - data_loader/solar
