@@ -11,5 +11,5 @@ class BaseNoise(abc.ABC):
         super().__init__()
 
     @abc.abstractmethod
-    def sample(t: torch.Tensor) -> torch.Tensor:
+    def sample(self) -> torch.Tensor:
         pass
