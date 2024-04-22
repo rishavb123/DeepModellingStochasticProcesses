@@ -12,5 +12,5 @@ class BaseNoise(abc.ABC):
         self.noise_size = noise_size
 
     @abc.abstractmethod
-    def sample(self) -> torch.Tensor:
+    def sample(self, num_samples: int) -> torch.Tensor:
         pass
