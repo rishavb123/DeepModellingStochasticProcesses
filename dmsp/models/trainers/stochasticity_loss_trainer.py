@@ -204,7 +204,7 @@ class StochasticityLossTrainer(BaseTrainer):
             loss.backward()
         self.optimizer.step()
 
-        return {"train/loss": loss.item(), "trian/log_loss": log_loss.item()}
+        return {"train/loss": loss.item(), "train/log_loss": log_loss.item()}
 
     def eval(self, eval_batch: List[torch.Tensor]) -> Dict[str, float]:
         with torch.no_grad():
