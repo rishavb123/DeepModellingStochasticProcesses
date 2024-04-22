@@ -5,6 +5,7 @@ from typing import List
 import abc
 import os
 import shutil
+import glob
 import numpy as np
 
 
@@ -65,7 +66,9 @@ class BaseLoader(abc.ABC):
         Returns:
             List[np.ndarray]: The dataset.
         """
-        return [np.load(f"{path}/{fname}") for fname in sorted(os.listdir(path=path))]
+        return [
+            np.load(str(fpath)) for fpath in sorted(glob.glob(f"{path}/trajectory_*"))
+        ]
 
     @staticmethod
     def save_to_path(path: str, data: List[np.ndarray] | None) -> None:
