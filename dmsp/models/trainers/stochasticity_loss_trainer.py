@@ -6,8 +6,10 @@ import torch.nn as nn
 import torch.utils.data
 import hydra
 import logging
+import inspect
 
 from dmsp.models.trainers.base_trainer import BaseTrainer
+from dmsp.models.noise.base_noise import BaseNoise
 
 
 logger = logging.getLogger(__name__)
@@ -19,8 +21,11 @@ class StochasticityLossTrainer(BaseTrainer):
         self,
         lookback: int,
         prediction_model: nn.Module,
+        noise_model: BaseNoise,
         optimizer_cls: str = "torch.optim.Adam",
         optimizer_kwargs: Dict[str, Any] | None = None,
+        k: int = 1,
+        num_train_generated_samples: int = 30,
         device: str = "cpu",
         dtype: torch.dtype = torch.float32,
     ) -> None:
@@ -31,6 +36,11 @@ class StochasticityLossTrainer(BaseTrainer):
         self.device = torch.device(device)
         self.dtype = dtype
         self.prediction_model = prediction_model.to(device=self.device)
+        self.noise_model = noise_model
+        self.concatenate_noise = (
+            len(inspect.signature(self.prediction_model.forward).parameters) == 1
+        )
+
         self.optimizer: torch.optim.Optimizer = hydra.utils.instantiate(
             {
                 "_target_": optimizer_cls,
@@ -39,6 +49,9 @@ class StochasticityLossTrainer(BaseTrainer):
             params=self.prediction_model.parameters(),
             _convert_="partial",
         )
+
+        self.k = k
+        self.num_train_generated_samples = num_train_generated_samples
 
         self.mse_loss = torch.nn.MSELoss()
 
@@ -107,7 +120,25 @@ class StochasticityLossTrainer(BaseTrainer):
 
         for t in range(1, 1 + traj_length):
             with torch.no_grad():
-                yhat: torch.Tensor = self.prediction_model(X)  # (n_traj, n_samples, d)
+                noise = self.noise_model.sample(
+                    num_samples=n_traj * self.num_train_generated_samples,
+                    device=self.device,
+                ).reshape(
+                    (
+                        n_traj,
+                        self.num_train_generated_samples,
+                        self.noise_model.noise_size,
+                    )
+                )  # (n_traj, num_samples, noise_size)
+
+                if self.concatenate_noise:
+                    inp = (torch.cat((X, noise), dim=-1),)
+                else:
+                    inp = (X, noise)
+
+                yhat: torch.Tensor = self.prediction_model(
+                    *inp
+                )  # (n_traj, n_samples, d)
                 samples[:, :, t, :] = yhat.detach().cpu().numpy()
                 X[:, :, :-d] = X[:, :, d:]
                 X[:, :, -d:] = yhat
@@ -120,13 +151,48 @@ class StochasticityLossTrainer(BaseTrainer):
     def save_model(self, path: str) -> None:
         torch.save(self.prediction_model.state_dict(), path)
 
+    def calculate_loss(self, batch: List[torch.Tensor]) -> torch.Tensor:
+        X, y = batch  # (batch_size, lookback * d), (batch_size, d)
+
+        batch_size, d = y.shape
+
+        X = X.unsqueeze(1).repeat(
+            (1, self.num_train_generated_samples, 1)
+        )  # (batch_size, num_samples, lookback * d)
+
+        noise = self.noise_model.sample(
+            num_samples=batch_size * self.num_train_generated_samples,
+            device=self.device,
+        ).reshape(
+            (batch_size, self.num_train_generated_samples, self.noise_model.noise_size)
+        )  # (batch_size, num_samples, noise_size)
+
+        if self.concatenate_noise:
+            inp = (torch.cat((X, noise), dim=-1),)
+        else:
+            inp = (X, noise)
+
+        yhats: torch.Tensor = self.prediction_model(
+            *inp
+        )  # (batch_size, num_samples, d)
+
+        distances = torch.norm(
+            yhats - y.unsqueeze(1), dim=-1
+        )  # (batch_size, num_samples)
+        kth_closest_indices = torch.topk(distances, k=self.k, largest=False, dim=1)[1][
+            :, -1
+        ]  # (batch_size)
+        kth_closest_samples = yhats[torch.arange(batch_size), kth_closest_indices, :]
+
+        loss: torch.Tensor = self.mse_loss(kth_closest_samples, y)
+
+        return loss
+
     def train(self, train_batch: List[torch.Tensor]) -> torch.Dict[str, float]:
-        X, y = train_batch
 
         self.optimizer.zero_grad()
 
-        yhat: torch.Tensor = self.prediction_model(X)
-        loss: torch.Tensor = self.mse_loss(yhat, y)
+        loss = self.calculate_loss(batch=train_batch)
 
         loss.backward()
         self.optimizer.step()
@@ -134,10 +200,6 @@ class StochasticityLossTrainer(BaseTrainer):
         return {"train/loss": loss.item()}
 
     def eval(self, eval_batch: List[torch.Tensor]) -> Dict[str, float]:
-        X, y = eval_batch
-
         with torch.no_grad():
-            yhat: torch.Tensor = self.prediction_model(X)
-            loss: torch.Tensor = self.mse_loss(yhat, y)
-
+            loss = self.calculate_loss(batch=eval_batch)
         return {"eval/loss": loss.item()}
