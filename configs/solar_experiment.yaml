@@ -1,6 +1,6 @@
 experiment_name: solar_experiment
 load_model_from_path: false
-train_model: false
+train_model: true
 eval_model: true
 visualize_samples:
     n_samples: 5
