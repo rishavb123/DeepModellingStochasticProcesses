@@ -13,6 +13,6 @@ class BaseNoise(abc.ABC):
 
     @abc.abstractmethod
     def sample(
-        self, num_samples: int = 1, device: torch.device | None = None
+        self, n_samples: int = 1, device: torch.device | None = None
     ) -> torch.Tensor:
         pass

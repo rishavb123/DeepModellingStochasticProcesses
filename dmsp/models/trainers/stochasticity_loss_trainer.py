@@ -25,7 +25,7 @@ class StochasticityLossTrainer(BaseTrainer):
         optimizer_cls: str = "torch.optim.Adam",
         optimizer_kwargs: Dict[str, Any] | None = None,
         k: int = 1,
-        num_train_generated_samples: int = 30,
+        n_train_generated_samples: int = 30,
         device: str = "cpu",
         dtype: torch.dtype = torch.float32,
     ) -> None:
@@ -51,7 +51,7 @@ class StochasticityLossTrainer(BaseTrainer):
         )
 
         self.k = k
-        self.num_train_generated_samples = num_train_generated_samples
+        self.n_train_generated_samples = n_train_generated_samples
 
         self.mse_loss = torch.nn.MSELoss()
 
@@ -121,15 +121,15 @@ class StochasticityLossTrainer(BaseTrainer):
         for t in range(1, 1 + traj_length):
             with torch.no_grad():
                 noise = self.noise_model.sample(
-                    num_samples=n_traj * self.num_train_generated_samples,
+                    n_samples=n_traj * n_samples,
                     device=self.device,
                 ).reshape(
                     (
                         n_traj,
-                        self.num_train_generated_samples,
+                        n_samples,
                         self.noise_model.noise_size,
                     )
-                )  # (n_traj, num_samples, noise_size)
+                )  # (n_traj, n_samples, noise_size)
 
                 if self.concatenate_noise:
                     inp = (torch.cat((X, noise), dim=-1),)
@@ -157,28 +157,26 @@ class StochasticityLossTrainer(BaseTrainer):
         batch_size, d = y.shape
 
         X = X.unsqueeze(1).repeat(
-            (1, self.num_train_generated_samples, 1)
-        )  # (batch_size, num_samples, lookback * d)
+            (1, self.n_train_generated_samples, 1)
+        )  # (batch_size, n_samples, lookback * d)
 
         noise = self.noise_model.sample(
-            num_samples=batch_size * self.num_train_generated_samples,
+            n_samples=batch_size * self.n_train_generated_samples,
             device=self.device,
         ).reshape(
-            (batch_size, self.num_train_generated_samples, self.noise_model.noise_size)
-        )  # (batch_size, num_samples, noise_size)
+            (batch_size, self.n_train_generated_samples, self.noise_model.noise_size)
+        )  # (batch_size, n_samples, noise_size)
 
         if self.concatenate_noise:
             inp = (torch.cat((X, noise), dim=-1),)
         else:
             inp = (X, noise)
 
-        yhats: torch.Tensor = self.prediction_model(
-            *inp
-        )  # (batch_size, num_samples, d)
+        yhats: torch.Tensor = self.prediction_model(*inp)  # (batch_size, n_samples, d)
 
         distances = torch.norm(
             yhats - y.unsqueeze(1), dim=-1
-        )  # (batch_size, num_samples)
+        )  # (batch_size, n_samples)
         kth_closest_indices = torch.topk(distances, k=self.k, largest=False, dim=1)[1][
             :, -1
         ]  # (batch_size)

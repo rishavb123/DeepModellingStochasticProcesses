@@ -11,6 +11,6 @@ class GaussianNoise(BaseNoise):
         super().__init__(noise_size)
 
     def sample(
-        self, num_samples: int = 1, device: torch.device | None = None
+        self, n_samples: int = 1, device: torch.device | None = None
     ) -> torch.Tensor:
-        return torch.randn(size=(num_samples, self.noise_size), device=device)
+        return torch.randn(size=(n_samples, self.noise_size), device=device)
