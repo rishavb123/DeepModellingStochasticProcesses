@@ -75,7 +75,7 @@ class BaseLoader(abc.ABC):
             path (str): The path to save to.
             data (List[np.ndarray] | None): The data to save.
         """
-        os.makedirs(path)
+        os.makedirs(path, exist_ok=True)
         if data is None:
             return
         for i, traj in enumerate(data):
