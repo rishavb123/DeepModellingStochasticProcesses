@@ -26,6 +26,7 @@ class StochasticityLossTrainer(BaseTrainer):
         optimizer_kwargs: Dict[str, Any] | None = None,
         k: int = 1,
         n_train_generated_samples: int = 30,
+        log_mse_loss: bool = True,
         device: str = "cpu",
         dtype: torch.dtype = torch.float32,
     ) -> None:
@@ -53,6 +54,7 @@ class StochasticityLossTrainer(BaseTrainer):
         self.k = k
         self.n_train_generated_samples = n_train_generated_samples
 
+        self.log_mse_loss = log_mse_loss
         self.mse_loss = torch.nn.MSELoss()
 
     def preprocess(self, trajectory_list: List[np.ndarray]) -> torch.utils.data.Dataset:
@@ -182,7 +184,10 @@ class StochasticityLossTrainer(BaseTrainer):
         ]  # (batch_size)
         kth_closest_samples = yhats[torch.arange(batch_size), kth_closest_indices, :]
 
-        loss: torch.Tensor = self.mse_loss(kth_closest_samples, y)
+        loss: torch.Tensor = torch.log(self.mse_loss(kth_closest_samples, y))
+
+        if self.log_mse_loss:
+            loss = torch.log(loss)
 
         return loss
 
