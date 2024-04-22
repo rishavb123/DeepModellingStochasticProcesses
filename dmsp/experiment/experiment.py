@@ -86,8 +86,8 @@ class DMSPExperiment(BaseExperiment):
             else:
                 model_path = self.cfg.model_path_to_load_from
             lst = model_path.split("_")
-            if len(lst) > 1 and lst[1].split(".")[0].isdigit():
-                start_epoch = int(lst[1].split(".")[0])
+            if len(lst) > 1 and lst[-1].split(".")[0].isdigit():
+                start_epoch = int(lst[-1].split(".")[0])
             trainer.load_model(model_path)
 
         # Process and prepare the dataset
