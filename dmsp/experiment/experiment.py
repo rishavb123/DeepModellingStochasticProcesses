@@ -189,28 +189,29 @@ class DMSPExperiment(BaseExperiment):
         # Train the model
         if self.cfg.train_model:
             os.makedirs(f"{run_output_path}/models")
-            for epoch in range(start_epoch, start_epoch + self.cfg.n_epochs):
-                train_metrics = {}
-                for train_batch in train_dataloader:
-                    m = trainer.train(train_batch=train_batch)
-                    cur_batch_size = (
-                        train_batch.shape[0]
-                        if isinstance(train_batch, torch.Tensor)
-                        else train_batch[0].shape[0]
-                    )
-                    for k in m:
-                        if k not in train_metrics:
-                            train_metrics[k] = []
-                        train_metrics[k].append(m[k] * cur_batch_size)
-                train_metrics = {
-                    k: np.sum(train_metrics[k]) / len(train_dataset)
-                    for k in train_metrics
-                }
+            for epoch in range(start_epoch - 1, start_epoch + self.cfg.n_epochs):
+                if epoch >= start_epoch:
+                    train_metrics = {}
+                    for train_batch in train_dataloader:
+                        m = trainer.train(train_batch=train_batch)
+                        cur_batch_size = (
+                            train_batch.shape[0]
+                            if isinstance(train_batch, torch.Tensor)
+                            else train_batch[0].shape[0]
+                        )
+                        for k in m:
+                            if k not in train_metrics:
+                                train_metrics[k] = []
+                            train_metrics[k].append(m[k] * cur_batch_size)
+                    train_metrics = {
+                        k: np.sum(train_metrics[k]) / len(train_dataset)
+                        for k in train_metrics
+                    }
 
                 wandb_only_dict = None
 
                 if (
-                    epoch == 1
+                    epoch == start_epoch - 1
                     or epoch % self.cfg.n_epochs_per_save == 0
                     or epoch == start_epoch + self.cfg.n_epochs - 1
                 ):
