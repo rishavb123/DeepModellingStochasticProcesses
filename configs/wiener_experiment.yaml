@@ -1,6 +1,6 @@
 experiment_name: wiener_experiment
-load_model_from_path: true
-train_model: false
+load_model_from_path: false
+train_model: true
 eval_model: true
 visualize_samples:
     n_samples: 6
