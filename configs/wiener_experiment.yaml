@@ -1,6 +1,6 @@
-experiment_name: toy_experiment
-load_model_from_path: true
-train_model: false
+experiment_name: wiener_experiment
+load_model_from_path: false
+train_model: true
 eval_model: true
 visualize_samples:
     n_samples: 6
@@ -14,6 +14,6 @@ n_epochs_per_save: 10000
 data_dim: 1
 defaults:
     - dmsp
-    - data_loader/toy
-    - trainer/tiny_slt
+    - data_loader/wiener
+    - trainer/big_slt
     - _self_

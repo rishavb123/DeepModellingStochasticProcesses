@@ -40,6 +40,8 @@ class DMSPConfig(BaseConfig):
     n_epochs: int = 10
     n_epochs_per_save: int = 10
 
+    data_dim: int = 1
+
     def __post_init__(self) -> None:
         assert (
             0 <= self.test_proportion <= 1

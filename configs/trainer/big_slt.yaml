@@ -4,7 +4,7 @@ lookback: 100
 prediction_model:
     _target_: experiment_lab.common.networks.create_mlp_network
     layer_sizes:
-        - "${eval: 10 * ${trainer.lookback} + ${trainer.noise_model.noise_size}}"
+        - "${eval: ${data_dim} * ${trainer.lookback} + ${trainer.noise_model.noise_size}}"
         - 500
         - 100
         - 10
