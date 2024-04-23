@@ -210,7 +210,8 @@ class DMSPExperiment(BaseExperiment):
                 wandb_only_dict = None
 
                 if (
-                    epoch % self.cfg.n_epochs_per_save == 0
+                    epoch == 1
+                    or epoch % self.cfg.n_epochs_per_save == 0
                     or epoch == start_epoch + self.cfg.n_epochs - 1
                 ):
                     save_model_path = f"{run_output_path}/models/epoch_{epoch}.pt"
