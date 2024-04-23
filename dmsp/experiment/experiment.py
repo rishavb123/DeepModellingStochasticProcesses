@@ -190,8 +190,8 @@ class DMSPExperiment(BaseExperiment):
         if self.cfg.train_model:
             os.makedirs(f"{run_output_path}/models")
             for epoch in range(start_epoch - 1, start_epoch + self.cfg.n_epochs):
+                train_metrics = {}
                 if epoch >= start_epoch:
-                    train_metrics = {}
                     for train_batch in train_dataloader:
                         m = trainer.train(train_batch=train_batch)
                         cur_batch_size = (
