@@ -12,5 +12,5 @@ n_epochs_per_save: 10000
 defaults:
     - dmsp
     - data_loader/toy
-    - trainer/toy_slt
+    - trainer/tiny_slt
     - _self_

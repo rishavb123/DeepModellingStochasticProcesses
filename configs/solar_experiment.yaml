@@ -14,5 +14,5 @@ n_epochs_per_save: 50
 defaults:
     - dmsp
     - data_loader/solar
-    - trainer/solar_slt
+    - trainer/big_slt
     - _self_
