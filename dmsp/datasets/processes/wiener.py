@@ -29,16 +29,23 @@ class WienerLoader(BaseLoader):
 
     def _download_data(self) -> List[np.ndarray]:
         np.random.seed(0)
-        data = np.concatenate(
-            (
-                np.zeros((self.n_traj, 1)) + self.initial_value,
-                np.random.normal(
-                    loc=self.mu, scale=self.std, size=(self.n_traj, self.traj_length)
+        data = (
+            np.concatenate(
+                (
+                    np.zeros((self.n_traj, 1)) + self.initial_value,
+                    np.random.normal(
+                        loc=self.mu,
+                        scale=self.std,
+                        size=(self.n_traj, self.traj_length),
+                    ),
                 ),
-            ),
-            axis=1,
-        ).cumsum(axis=1)
+                axis=1,
+            )
+            .cumsum(axis=1)
+            .reshape(self.n_traj, self.traj_length, 1)
+        )
         return list(data)
+
 
 class VolatileWienerLoader(WienerLoader):
 
