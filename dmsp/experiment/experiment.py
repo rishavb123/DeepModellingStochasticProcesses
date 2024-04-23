@@ -1,6 +1,6 @@
 """File for the actual dmsp experiment code."""
 
-from typing import Any, Dict
+from typing import Any, Dict, List
 import logging
 import torch.utils.data
 import wandb
@@ -51,6 +51,70 @@ class DMSPExperiment(BaseExperiment):
         logger.info(json.dumps(dict_to_log))
         if self.wandb_mode != "disabled":
             wandb.log(dict_to_log)
+
+    def save_samples(
+        self,
+        trainer: BaseTrainer,
+        run_output_path: str,
+        epoch_num: int,
+        test_trajs: List[np.ndarray],
+    ) -> None:
+        test_trajs = trainer.validate_traj_lst(
+            trajectory_list=test_trajs,
+            sample_from_lookback=self.cfg.visualize_samples.sample_from_lookback,
+        )
+        d = test_trajs[0].shape[1]
+        cont_trajs = trainer.sample(
+            test_trajs,
+            n_samples=self.cfg.visualize_samples.n_samples,
+            traj_length=self.cfg.visualize_samples.traj_length,
+            sample_from_lookback=self.cfg.visualize_samples.sample_from_lookback,
+        )
+
+        os.makedirs(f"{run_output_path}/plots/epoch_{epoch_num}")
+        for i, (traj, samples) in enumerate(zip(test_trajs, cont_trajs)):
+            fig, ax = plt.subplots(
+                d,
+                self.cfg.visualize_samples.n_samples,
+                figsize=(
+                    d * self.cfg.visualize_samples.fig_size_row_multiplier,
+                    self.cfg.visualize_samples.n_samples
+                    * self.cfg.visualize_samples.fig_size_col_multiplier,
+                ),
+            )
+            for feature_idx in range(d):
+                ax_row = ax[feature_idx] if d > 1 else ax
+                for sample_idx in range(self.cfg.visualize_samples.n_samples):
+                    if (
+                        self.cfg.visualize_samples.plot_subset_features is None
+                        or feature_idx
+                        in self.cfg.visualize_samples.plot_subset_features
+                    ):
+                        ax_row[sample_idx].plot(
+                            range(len(traj)),
+                            traj[:, feature_idx],
+                            label=f"ground_truth",
+                        )
+                        ax_row[sample_idx].plot(
+                            range(
+                                len(traj)
+                                - self.cfg.visualize_samples.sample_from_lookback,
+                                len(traj)
+                                - self.cfg.visualize_samples.sample_from_lookback
+                                + self.cfg.visualize_samples.traj_length,
+                            ),
+                            samples[sample_idx, :, feature_idx],
+                            label=f"pred_sample",
+                        )
+                    ax_row[sample_idx].set_title(
+                        f"Sample {sample_idx}; Feature {feature_idx}"
+                    )
+                    ax_row[sample_idx].set_xlabel(f"Timesteps")
+                    ax_row[sample_idx].set_ylabel(f"Value")
+            fig.suptitle(f"Trajectory {i}")
+            plt.savefig(
+                f"{run_output_path}/plots/epoch_{epoch_num}/trajectory_{i}_samples.png"
+            )
 
     def single_run(
         self, run_id: str, run_output_path: str, seed: int | None = None
@@ -137,6 +201,14 @@ class DMSPExperiment(BaseExperiment):
                 ):
                     save_model_path = f"{run_output_path}/models/epoch_{epoch}.pt"
                     trainer.save_model(save_model_path)
+                    # Visualize Samples
+                    if self.cfg.visualize_samples is not None:
+                        self.save_samples(
+                            trainer=trainer,
+                            run_output_path=run_output_path,
+                            epoch_num=epoch,
+                            test_trajs=test_trajs,
+                        )
 
                 test_metrics = {}
                 for eval_batch in test_dataloader:
@@ -149,60 +221,3 @@ class DMSPExperiment(BaseExperiment):
             for eval_batch in test_dataloader:
                 test_metrics = trainer.eval(eval_batch=eval_batch)
             logger.info(f"final eval metrics: {json.dumps(test_metrics)}")
-
-        # Visualize Samples
-        if self.cfg.visualize_samples is not None:
-            test_trajs = trainer.validate_traj_lst(
-                trajectory_list=test_trajs,
-                sample_from_lookback=self.cfg.visualize_samples.sample_from_lookback,
-            )
-            d = test_trajs[0].shape[1]
-            cont_trajs = trainer.sample(
-                test_trajs,
-                n_samples=self.cfg.visualize_samples.n_samples,
-                traj_length=self.cfg.visualize_samples.traj_length,
-                sample_from_lookback=self.cfg.visualize_samples.sample_from_lookback,
-            )
-
-            os.makedirs(f"{run_output_path}/plots")
-            for i, (traj, samples) in enumerate(zip(test_trajs, cont_trajs)):
-                fig, ax = plt.subplots(
-                    d,
-                    self.cfg.visualize_samples.n_samples,
-                    figsize=(
-                        d * self.cfg.visualize_samples.fig_size_row_multiplier,
-                        self.cfg.visualize_samples.n_samples
-                        * self.cfg.visualize_samples.fig_size_col_multiplier,
-                    ),
-                )
-                for feature_idx in range(d):
-                    ax_row = ax[feature_idx] if d > 1 else ax
-                    for sample_idx in range(self.cfg.visualize_samples.n_samples):
-                        if (
-                            self.cfg.visualize_samples.plot_subset_features is None
-                            or feature_idx
-                            in self.cfg.visualize_samples.plot_subset_features
-                        ):
-                            ax_row[sample_idx].plot(
-                                range(len(traj)),
-                                traj[:, feature_idx],
-                                label=f"ground_truth",
-                            )
-                            ax_row[sample_idx].plot(
-                                range(
-                                    len(traj)
-                                    - self.cfg.visualize_samples.sample_from_lookback,
-                                    len(traj)
-                                    - self.cfg.visualize_samples.sample_from_lookback
-                                    + self.cfg.visualize_samples.traj_length,
-                                ),
-                                samples[sample_idx, :, feature_idx],
-                                label=f"pred_sample",
-                            )
-                        ax_row[sample_idx].set_title(
-                            f"Sample {sample_idx}; Feature {feature_idx}"
-                        )
-                        ax_row[sample_idx].set_xlabel(f"Timesteps")
-                        ax_row[sample_idx].set_ylabel(f"Value")
-                fig.suptitle(f"Trajectory {i}")
-                plt.savefig(f"{run_output_path}/plots/trajectory_{i}_samples.png")

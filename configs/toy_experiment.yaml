@@ -10,7 +10,7 @@ visualize_samples:
     fig_size_row_multiplier: 30
     fig_size_col_multiplier: 1
 n_epochs: 2500
-n_epochs_per_save: 10000
+n_epochs_per_save: 500
 data_dim: 1
 defaults:
     - dmsp
