@@ -58,7 +58,7 @@ class FunkyWienerLoader(WienerLoader):
         traj_length: int = 100,
     ) -> None:
         super().__init__(mu, std, initial_value, n_traj, traj_length)
-        self.path = f"funky_{self.path}"
+        self.path = f"{self.path}_funky"
 
     def _download_data(self) -> List[np.ndarray]:
         res = np.array(super()._download_data())
