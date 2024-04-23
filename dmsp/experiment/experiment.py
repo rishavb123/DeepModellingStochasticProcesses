@@ -152,6 +152,10 @@ class DMSPExperiment(BaseExperiment):
 
         # Visualize Samples
         if self.cfg.visualize_samples is not None:
+            test_trajs = trainer.validate_traj_lst(
+                trajectory_list=test_trajs,
+                sample_from_lookback=self.cfg.visualize_samples.sample_from_lookback,
+            )
             d = test_trajs[0].shape[1]
             cont_trajs = trainer.sample(
                 test_trajs,
