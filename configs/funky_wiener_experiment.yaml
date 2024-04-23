@@ -1,4 +1,4 @@
-experiment_name: wiener_experiment
+experiment_name: funky_wiener_experiment
 load_model_from_path: false
 train_model: true
 eval_model: true
