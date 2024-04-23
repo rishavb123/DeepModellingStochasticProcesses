@@ -58,7 +58,7 @@ class DMSPExperiment(BaseExperiment):
         run_output_path: str,
         epoch_num: int,
         test_trajs: List[np.ndarray],
-    ) -> None:
+    ) -> Dict[str, Any]:
         test_trajs = trainer.validate_traj_lst(
             trajectory_list=test_trajs,
             sample_from_lookback=self.cfg.visualize_samples.sample_from_lookback,
