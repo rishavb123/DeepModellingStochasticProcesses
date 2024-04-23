@@ -6,7 +6,7 @@ prediction_model:
     layer_sizes:
         - "${eval: ${data_dim} * ${trainer.lookback} + ${trainer.noise_model.noise_size}}"
         - 3
-        - 1
+        - ${data_dim}
     layer_activations:
         _target_: torch.nn.LeakyReLU
         negative_slope: 0.01

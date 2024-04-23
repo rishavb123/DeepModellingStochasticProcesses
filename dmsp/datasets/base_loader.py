@@ -66,13 +66,15 @@ class BaseLoader(abc.ABC):
         for traj in self.data:
             end_prop = begin_prop + traj.shape[0] / total_length
 
-            if cum_prop >= begin_prop and cum_prop < end_prop:
-                split_ind = int( len(traj) * (cum_prop - begin_prop) / (end_prop - begin_prop) )
-                current_set.append(traj[:split_ind,:])
+            if cum_prop >= begin_prop and cum_prop < end_prop and end_prop < 1.0:
+                split_ind = int(
+                    len(traj) * (cum_prop - begin_prop) / (end_prop - begin_prop)
+                )
+                current_set.append(traj[:split_ind, :])
                 res.append(current_set)
 
                 current_set = []
-                current_set.append(traj[split_ind:,:])
+                current_set.append(traj[split_ind:, :])
 
                 prop_ind += 1
                 cum_prop += split_proportions[prop_ind]
@@ -81,6 +83,7 @@ class BaseLoader(abc.ABC):
 
             begin_prop = end_prop
         res.append(current_set)
+
         return res
 
     @staticmethod

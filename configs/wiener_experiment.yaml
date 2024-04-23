@@ -4,8 +4,8 @@ train_model: true
 eval_model: true
 visualize_samples:
     n_samples: 6
-    traj_length: 50
-    sample_from_lookback: 20
+    traj_length: 4000
+    sample_from_lookback: 1000
     plot_subset_features: null
     fig_size_row_multiplier: 30
     fig_size_col_multiplier: 1
