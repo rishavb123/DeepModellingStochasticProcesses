@@ -172,18 +172,19 @@ class DMSPExperiment(BaseExperiment):
                     ),
                 )
                 for feature_idx in range(d):
+                    ax_row = ax[feature_idx] if d > 1 else ax
                     for sample_idx in range(self.cfg.visualize_samples.n_samples):
                         if (
                             self.cfg.visualize_samples.plot_subset_features is None
                             or feature_idx
                             in self.cfg.visualize_samples.plot_subset_features
                         ):
-                            ax[feature_idx][sample_idx].plot(
+                            ax_row[sample_idx].plot(
                                 range(len(traj)),
                                 traj[:, feature_idx],
                                 label=f"ground_truth",
                             )
-                            ax[feature_idx][sample_idx].plot(
+                            ax_row[sample_idx].plot(
                                 range(
                                     len(traj)
                                     - self.cfg.visualize_samples.sample_from_lookback,
@@ -194,10 +195,10 @@ class DMSPExperiment(BaseExperiment):
                                 samples[sample_idx, :, feature_idx],
                                 label=f"pred_sample",
                             )
-                        ax[feature_idx][sample_idx].set_title(
+                        ax_row[sample_idx].set_title(
                             f"Sample {sample_idx}; Feature {feature_idx}"
                         )
-                        ax[feature_idx][sample_idx].set_xlabel(f"Timesteps")
-                        ax[feature_idx][sample_idx].set_ylabel(f"Value")
+                        ax_row[sample_idx].set_xlabel(f"Timesteps")
+                        ax_row[sample_idx].set_ylabel(f"Value")
                 fig.suptitle(f"Trajectory {i}")
                 plt.savefig(f"{run_output_path}/plots/trajectory_{i}_samples.png")

@@ -1,12 +1,14 @@
 experiment_name: toy_experiment
-load_model_from_path: false
-train_model: true
+load_model_from_path: true
+train_model: false
 eval_model: true
 visualize_samples:
     n_samples: 6
     traj_length: 50
     sample_from_lookback: 20
     plot_subset_features: null
+    fig_size_row_multiplier: 30
+    fig_size_col_multiplier: 1
 n_epochs: 2500
 n_epochs_per_save: 10000
 defaults:
