@@ -9,8 +9,8 @@ visualize_samples:
     plot_subset_features: null
     fig_size_row_multiplier: 30
     fig_size_col_multiplier: 1
-n_epochs: 2500
-n_epochs_per_save: 10000
+n_epochs: 200
+n_epochs_per_save: 50
 data_dim: 1
 defaults:
     - dmsp
