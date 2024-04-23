@@ -15,5 +15,5 @@ data_dim: 1
 defaults:
     - dmsp
     - data_loader/wiener
-    - trainer/big_slt
+    - trainer/medium_slt
     - _self_
