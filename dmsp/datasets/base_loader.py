@@ -44,7 +44,6 @@ class BaseLoader(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
     def split_data(self, split_proportions: List[float]) -> List[List[np.ndarray]]:
         """Splits the data into the proportions specified by the input while maintaining an ordering.
 
@@ -54,7 +53,35 @@ class BaseLoader(abc.ABC):
         Returns:
             List[List[np.ndarray]]: The data split as specified.
         """
-        pass
+
+        total_length = 0
+        for traj in self.data:
+            total_length += traj.shape[0]
+
+        res = []
+        current_set = []
+        cum_prop = split_proportions[0]
+        prop_ind = 0
+        begin_prop = 0
+        for traj in self.data:
+            end_prop = begin_prop + traj.shape[0] / total_length
+
+            if cum_prop >= begin_prop and cum_prop < end_prop:
+                split_ind = int( len(traj) * (cum_prop - begin_prop) / (end_prop - begin_prop) )
+                current_set.append(traj[:split_ind,:])
+                res.append(current_set)
+
+                current_set = []
+                current_set.append(traj[split_ind:,:])
+
+                prop_ind += 1
+                cum_prop += split_proportions[prop_ind]
+            else:
+                current_set.append(traj)
+
+            begin_prop = end_prop
+        res.append(current_set)
+        return res
 
     @staticmethod
     def read_from_path(path: str) -> List[np.ndarray]:

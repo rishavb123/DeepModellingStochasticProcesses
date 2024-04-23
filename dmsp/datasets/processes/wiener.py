@@ -40,7 +40,6 @@ class WienerLoader(BaseLoader):
         ).cumsum(axis=1)
         return list(data)
 
-
 class VolatileWienerLoader(WienerLoader):
 
     def __init__(
@@ -86,3 +85,21 @@ if __name__ == "__main__":
 
     plt.plot(data.mean(axis=0))
     plt.show()
+
+    # Test case for split_data:
+    """
+    toydata = [
+        np.arange(0,100,1),
+        np.arange(200,205,1),
+        np.arange(300,350,1),
+        np.arange(400,415,1),
+        np.arange(500,530,1),
+    ]
+    toydata = [x.reshape(-1, 1) for x in toydata]
+    w = WienerLoader(0, 1)
+    w.data = toydata
+    res = w.split_data([0.1, 0.7, 0.15, 0.05])
+    for thing in res:
+        print('*'*50)
+        print(thing)
+    """
