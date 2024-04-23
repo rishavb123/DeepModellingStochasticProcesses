@@ -3,5 +3,5 @@ hydra:
 wandb:
     mode: disabled
 defaults:
-    - wiener_experiment
+    - funky_wiener_experiment
     - _self_
