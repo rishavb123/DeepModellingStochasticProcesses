@@ -8,7 +8,7 @@ visualize_samples:
     sample_from_lookback: 100
     plot_subset_features: null
     fig_size_row_multiplier: 30
-    fig_size_col_multiplier: 1
+    fig_size_col_multiplier: 2
 n_epochs: 200
 n_epochs_per_save: 50
 data_dim: 2
