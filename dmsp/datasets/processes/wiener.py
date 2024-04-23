@@ -42,10 +42,30 @@ class WienerLoader(BaseLoader):
                 axis=1,
             )
             .cumsum(axis=1)
-            .reshape(self.n_traj, self.traj_length, 1)
+            .reshape(self.n_traj, self.traj_length + 1, 1)
         )
         return list(data)
 
+class FunkyWienerLoader(WienerLoader):
+
+    def __init__(self, mu: float, std: float, initial_value: float = 0, n_traj: int = 100, traj_length: int = 100) -> None:
+        super().__init__(mu, std, initial_value, n_traj, traj_length)
+    
+    def _download_data(self) -> List[np.ndarray]:
+        res = np.array(super()._download_data())
+
+        increments = np.diff(res, axis=1)
+        increments[increments > 3.4*self.std] *= -1
+        increments[increments > 2.2*self.std] *= 2
+        # increments += np.random.normal(loc=0, scale=self.std/5, size=increments.shape)
+
+        data = (
+            increments
+            .cumsum(axis=1)
+        )
+
+        res = np.concatenate((res[:,:-1,:], data), axis=2)
+        return list(res)
 
 class VolatileWienerLoader(WienerLoader):
 
@@ -79,11 +99,11 @@ if __name__ == "__main__":
         n_traj=1000,
         traj_length=10000,
     )
-    loader.load()
+    loader.load(force_redownload=True)
     data = np.array(loader.data)
     import matplotlib.pyplot as plt
 
-    plt.plot(data[0])
+    plt.plot(data[0,:,0])
     plt.show()
 
     for i in range(100):
