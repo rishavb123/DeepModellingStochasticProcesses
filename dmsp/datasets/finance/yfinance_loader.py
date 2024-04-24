@@ -24,6 +24,7 @@ class YFinanceLoader(BaseLoader):
             symbols (List[str]): The list of symbols to include in the dataset.
             download_kwargs (List[Dict[str, Any]]): The kwargs to use for each trajectory.
             columns (List[str] | None, optional): The columns from the yfinance return to use. Defaults to None.
+            normalize_by_first_price (bool, optional): Whether or not to normalize the data by the first price downloaded. Defaults to False.
         """
         super().__init__(
             f"./data/finance/{'_'.join(symbols)}__{'__'.join([f'{k}_{kwargs[k]}' for kwargs in download_kwargs for k in kwargs])}__{'__'.join([c.replace(' ', '_') for c in columns])}_{normalize_by_first_price}/"

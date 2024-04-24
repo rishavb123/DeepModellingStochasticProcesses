@@ -1,0 +1,6 @@
+_target_: dmsp.datasets.processes.wiener.WienerLoader
+mu: 0.05
+std: 10
+initial_value: 0
+n_traj: 100
+traj_length: 1000

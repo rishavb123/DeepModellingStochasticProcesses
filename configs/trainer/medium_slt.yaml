@@ -1,0 +1,20 @@
+_target_: dmsp.models.trainers.stochasticity_loss_trainer.StochasticityLossTrainer
+device: mps
+lookback: 50
+prediction_model:
+    _target_: experiment_lab.common.networks.create_mlp_network
+    layer_sizes:
+        - "${eval: ${data_dim} * ${trainer.lookback} + ${trainer.noise_model.noise_size}}"
+        - 30
+        - ${data_dim}
+    layer_activations:
+        _target_: torch.nn.LeakyReLU
+        negative_slope: 0.01
+    final_activation: null
+noise_model:
+    _target_: dmsp.models.noise.gaussian.GaussianNoise
+    noise_size: 25
+optimizer_cls: torch.optim.Adam
+k: 15
+n_train_generated_samples: 100
+use_log_loss_for_backprop: true

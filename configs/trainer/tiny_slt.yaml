@@ -4,9 +4,9 @@ lookback: 3
 prediction_model:
     _target_: experiment_lab.common.networks.create_mlp_network
     layer_sizes:
-        - "${eval: ${trainer.lookback} + ${trainer.noise_model.noise_size}}"
+        - "${eval: ${data_dim} * ${trainer.lookback} + ${trainer.noise_model.noise_size}}"
         - 3
-        - 1
+        - ${data_dim}
     layer_activations:
         _target_: torch.nn.LeakyReLU
         negative_slope: 0.01

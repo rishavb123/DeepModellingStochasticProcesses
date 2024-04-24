@@ -57,6 +57,15 @@ class StochasticityLossTrainer(BaseTrainer):
         self.use_log_loss_for_backprop = use_log_loss_for_backprop
         self.mse_loss = torch.nn.MSELoss()
 
+    def validate_traj_lst(
+        self, trajectory_list: List[np.ndarray], sample_from_lookback: int = 0
+    ) -> List[np.ndarray]:
+        return [
+            traj
+            for traj in trajectory_list
+            if traj.shape[0] > self.lookback + sample_from_lookback
+        ]
+
     def preprocess(self, trajectory_list: List[np.ndarray]) -> torch.utils.data.Dataset:
         X = []
         y = []

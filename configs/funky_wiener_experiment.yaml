@@ -1,0 +1,19 @@
+experiment_name: funky_wiener_experiment
+load_model_from_path: false
+train_model: true
+eval_model: true
+visualize_samples:
+    n_samples: 6
+    traj_length: 400
+    sample_from_lookback: 100
+    plot_subset_features: null
+    fig_size_row_multiplier: 30
+    fig_size_col_multiplier: 2
+n_epochs: 200
+n_epochs_per_save: 50
+data_dim: 2
+defaults:
+    - dmsp
+    - data_loader/funky_wiener
+    - trainer/medium_slt
+    - _self_

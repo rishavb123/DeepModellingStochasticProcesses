@@ -5,6 +5,7 @@ from typing import List
 import abc
 import os
 import shutil
+import glob
 import numpy as np
 
 
@@ -43,7 +44,6 @@ class BaseLoader(abc.ABC):
         """
         pass
 
-    @abc.abstractmethod
     def split_data(self, split_proportions: List[float]) -> List[List[np.ndarray]]:
         """Splits the data into the proportions specified by the input while maintaining an ordering.
 
@@ -53,7 +53,38 @@ class BaseLoader(abc.ABC):
         Returns:
             List[List[np.ndarray]]: The data split as specified.
         """
-        pass
+
+        total_length = 0
+        for traj in self.data:
+            total_length += traj.shape[0]
+
+        res = []
+        current_set = []
+        cum_prop = split_proportions[0]
+        prop_ind = 0
+        begin_prop = 0
+        for traj in self.data:
+            end_prop = begin_prop + traj.shape[0] / total_length
+
+            if cum_prop >= begin_prop and cum_prop < end_prop and end_prop < 1.0:
+                split_ind = int(
+                    len(traj) * (cum_prop - begin_prop) / (end_prop - begin_prop)
+                )
+                current_set.append(traj[:split_ind, :])
+                res.append(current_set)
+
+                current_set = []
+                current_set.append(traj[split_ind:, :])
+
+                prop_ind += 1
+                cum_prop += split_proportions[prop_ind]
+            else:
+                current_set.append(traj)
+
+            begin_prop = end_prop
+        res.append(current_set)
+
+        return res
 
     @staticmethod
     def read_from_path(path: str) -> List[np.ndarray]:
@@ -65,7 +96,9 @@ class BaseLoader(abc.ABC):
         Returns:
             List[np.ndarray]: The dataset.
         """
-        return [np.load(f"{path}/{fname}") for fname in sorted(os.listdir(path=path))]
+        return [
+            np.load(str(fpath)) for fpath in sorted(glob.glob(f"{path}/trajectory_*"))
+        ]
 
     @staticmethod
     def save_to_path(path: str, data: List[np.ndarray] | None) -> None:
@@ -75,7 +108,7 @@ class BaseLoader(abc.ABC):
             path (str): The path to save to.
             data (List[np.ndarray] | None): The data to save.
         """
-        os.makedirs(path)
+        os.makedirs(path, exist_ok=True)
         if data is None:
             return
         for i, traj in enumerate(data):

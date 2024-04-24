@@ -1,19 +1,19 @@
-experiment_name: toy_experiment
+experiment_name: wiener_experiment
 load_model_from_path: false
 train_model: true
 eval_model: true
 visualize_samples:
     n_samples: 6
-    traj_length: 50
-    sample_from_lookback: 20
+    traj_length: 400
+    sample_from_lookback: 100
     plot_subset_features: null
     fig_size_row_multiplier: 30
     fig_size_col_multiplier: 1
-n_epochs: 2500
-n_epochs_per_save: 500
+n_epochs: 200
+n_epochs_per_save: 50
 data_dim: 1
 defaults:
     - dmsp
-    - data_loader/toy
-    - trainer/tiny_slt
+    - data_loader/wiener
+    - trainer/medium_slt
     - _self_

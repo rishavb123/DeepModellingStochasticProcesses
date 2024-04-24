@@ -29,16 +29,49 @@ class WienerLoader(BaseLoader):
 
     def _download_data(self) -> List[np.ndarray]:
         np.random.seed(0)
-        data = np.concatenate(
-            (
-                np.zeros((self.n_traj, 1)) + self.initial_value,
-                np.random.normal(
-                    loc=self.mu, scale=self.std, size=(self.n_traj, self.traj_length)
+        data = (
+            np.concatenate(
+                (
+                    np.zeros((self.n_traj, 1)) + self.initial_value,
+                    np.random.normal(
+                        loc=self.mu,
+                        scale=self.std,
+                        size=(self.n_traj, self.traj_length),
+                    ),
                 ),
-            ),
-            axis=1,
-        ).cumsum(axis=1)
+                axis=1,
+            )
+            .cumsum(axis=1)
+            .reshape(self.n_traj, self.traj_length + 1, 1)
+        )
         return list(data)
+
+
+class FunkyWienerLoader(WienerLoader):
+
+    def __init__(
+        self,
+        mu: float,
+        std: float,
+        initial_value: float = 0,
+        n_traj: int = 100,
+        traj_length: int = 100,
+    ) -> None:
+        super().__init__(mu, std, initial_value, n_traj, traj_length)
+        self.path = f"{self.path}_funky"
+
+    def _download_data(self) -> List[np.ndarray]:
+        res = np.array(super()._download_data())
+
+        increments = np.diff(res, axis=1)
+        increments[increments > 3.4 * self.std] *= -1
+        increments[increments > 2.2 * self.std] *= 2
+        # increments += np.random.normal(loc=0, scale=self.std/5, size=increments.shape)
+
+        data = increments.cumsum(axis=1)
+
+        res = np.concatenate((res[:, :-1, :], data), axis=2)
+        return list(res)
 
 
 class VolatileWienerLoader(WienerLoader):
@@ -73,11 +106,11 @@ if __name__ == "__main__":
         n_traj=1000,
         traj_length=10000,
     )
-    loader.load()
+    loader.load(force_redownload=True)
     data = np.array(loader.data)
     import matplotlib.pyplot as plt
 
-    plt.plot(data[0])
+    plt.plot(data[0, :, 0])
     plt.show()
 
     for i in range(100):
@@ -86,3 +119,21 @@ if __name__ == "__main__":
 
     plt.plot(data.mean(axis=0))
     plt.show()
+
+    # Test case for split_data:
+    """
+    toydata = [
+        np.arange(0,100,1),
+        np.arange(200,205,1),
+        np.arange(300,350,1),
+        np.arange(400,415,1),
+        np.arange(500,530,1),
+    ]
+    toydata = [x.reshape(-1, 1) for x in toydata]
+    w = WienerLoader(0, 1)
+    w.data = toydata
+    res = w.split_data([0.1, 0.7, 0.15, 0.05])
+    for thing in res:
+        print('*'*50)
+        print(thing)
+    """
