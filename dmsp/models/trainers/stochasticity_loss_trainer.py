@@ -11,8 +11,13 @@ import inspect
 from dmsp.models.trainers.base_trainer import BaseTrainer
 from dmsp.models.noise.base_noise import BaseNoise
 
+from dmsp.utils.numpy_dataset import NumpyDataset
+
 
 logger = logging.getLogger(__name__)
+
+import os
+import pandas as pd
 
 
 class StochasticityLossTrainer(BaseTrainer):
@@ -29,6 +34,7 @@ class StochasticityLossTrainer(BaseTrainer):
         use_log_loss_for_backprop: bool = True,
         device: str = "cpu",
         dtype: torch.dtype = torch.float32,
+        stream_data: bool = True,
     ) -> None:
         super().__init__()
 
@@ -57,6 +63,8 @@ class StochasticityLossTrainer(BaseTrainer):
         self.use_log_loss_for_backprop = use_log_loss_for_backprop
         self.mse_loss = torch.nn.MSELoss()
 
+        self.stream_data = stream_data
+
     def validate_traj_lst(
         self, trajectory_list: List[np.ndarray], sample_from_lookback: int = 0
     ) -> List[np.ndarray]:
@@ -78,10 +86,16 @@ class StochasticityLossTrainer(BaseTrainer):
         X = np.array(X)
         y = np.array(y)
 
-        X = torch.tensor(X, device=self.device, dtype=self.dtype)
-        y = torch.tensor(y, device=self.device, dtype=self.dtype)
+        X = torch.tensor(
+            X, device=self.device, dtype=self.dtype
+        )  # (n_examples, lookback * d)
+        y = torch.tensor(y, device=self.device, dtype=self.dtype)  # (n_examples, d)
 
-        return torch.utils.data.TensorDataset(X, y)
+        if self.stream_data:
+            return NumpyDataset(X, y, self.device, self.dtype)
+
+        else:
+            return torch.utils.data.TensorDataset(X, y)
 
     def sample(
         self,
