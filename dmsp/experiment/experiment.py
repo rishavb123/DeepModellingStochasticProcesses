@@ -133,6 +133,7 @@ class DMSPExperiment(BaseExperiment):
             plt.savefig(
                 f"{run_output_path}/plots/epoch_{epoch_num}/trajectory_{i}_samples.png"
             )
+            plt.close()
             m[f"trajectory_{i}_samples"] = wandb.Image(
                 f"{run_output_path}/plots/epoch_{epoch_num}/trajectory_{i}_samples.png"
             )
