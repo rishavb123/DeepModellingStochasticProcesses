@@ -14,7 +14,7 @@ prediction_model:
 noise_model:
     _target_: dmsp.models.noise.gaussian.GaussianNoise
     noise_size: 25
-stream_data: true
+stream_data: false
 optimizer_cls: torch.optim.Adam
 k: 15
 n_train_generated_samples: 100
