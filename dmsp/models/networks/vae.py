@@ -22,7 +22,7 @@ class VAE(nn.Module):
         self.latent_dim = latent_dim
 
         self.reconstruction_loss_f = (
-            nn.BCELoss() if reconstruction_loss_f is None else reconstruction_loss_f
+            nn.MSELoss() if reconstruction_loss_f is None else reconstruction_loss_f
         )
 
     def set_device(self, device: str | None):
