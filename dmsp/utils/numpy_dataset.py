@@ -5,8 +5,9 @@ from typing import Tuple
 import numpy as np
 import torch
 
+from torch.utils.data import Dataset
 
-class NumpyDataset(torch.utils.Dataset):
+class NumpyDataset(Dataset):
     """Dataset for numpy array to load into gpu memory as necessary."""
 
     def __init__(
