@@ -63,7 +63,8 @@ class StochasticityLossTrainer(BaseTrainer):
         self.use_log_loss_for_backprop = use_log_loss_for_backprop
         self.mse_loss = torch.nn.MSELoss()
 
-<<<<<<< Updated upstream
+        self.stream_data = stream_data
+
     def validate_traj_lst(
         self, trajectory_list: List[np.ndarray], sample_from_lookback: int = 0
     ) -> List[np.ndarray]:
@@ -72,9 +73,6 @@ class StochasticityLossTrainer(BaseTrainer):
             for traj in trajectory_list
             if traj.shape[0] > self.lookback + sample_from_lookback
         ]
-=======
-        self.stream_data = stream_data
->>>>>>> Stashed changes
 
     def preprocess(self, trajectory_list: List[np.ndarray]) -> torch.utils.data.Dataset:
         X = []
