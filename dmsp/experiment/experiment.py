@@ -256,6 +256,7 @@ class DMSPExperiment(BaseExperiment):
                     epoch_num=start_epoch - 1,
                     test_trajs=test_trajs,
                 )
+                self.log_values(dict_to_log={}, wandb_only_dict=wandb_only_dict)
 
         # Evaluate the model
         if self.cfg.eval_model:
