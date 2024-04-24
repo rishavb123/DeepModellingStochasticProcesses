@@ -65,6 +65,17 @@ class DMSPExperiment(BaseExperiment):
         epoch_num: int,
         test_trajs: List[np.ndarray],
     ) -> Dict[str, Any]:
+        """Saves the samples into wandb and the output folder.
+
+        Args:
+            trainer (BaseTrainer): The base trainer.
+            run_output_path (str): The output folder to save to.
+            epoch_num (int): The current epoch number.
+            test_trajs (List[np.ndarray]): The test trajectories to generate samples on.
+
+        Returns:
+            Dict[str, Any]: The metrics to log to wandb.
+        """
         test_trajs = trainer.validate_traj_lst(
             trajectory_list=test_trajs,
             sample_from_lookback=self.cfg.visualize_samples.sample_from_lookback,
