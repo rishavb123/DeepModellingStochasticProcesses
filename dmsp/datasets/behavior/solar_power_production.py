@@ -50,7 +50,11 @@ class SolarPowerProductionLoader(BaseLoader):
         df = df.pivot_table(index="date", columns="id", values="kWh", fill_value=None).ffill(axis=1).bfill(axis=1)
         df = df[df.index < "2023-03-05 16:00:00"]
 
-        return [df.values]
+        data = df.values
+        data -= data.mean()
+        data /= data.std()
+
+        return [data]
 
 
 if __name__ == "__main__":
