@@ -34,7 +34,7 @@ class StochasticityLossTrainer(BaseTrainer):
         use_log_loss_for_backprop: bool = True,
         device: str = "cpu",
         dtype: torch.dtype = torch.float32,
-        stream_data: bool = True,
+        stream_data: bool = False,
     ) -> None:
         super().__init__()
 
@@ -181,8 +181,16 @@ class StochasticityLossTrainer(BaseTrainer):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         X, y = batch  # (batch_size, lookback * d), (batch_size, d)
 
+        torch.cuda.synchronize()
         X = X.to(self.device)
         y = y.to(self.device)
+        torch.cuda.synchronize()
+
+        import pdb; pdb.set_trace()
+
+        print("These are the tensors")
+        print(X.shape)
+        print(y.shape)
 
         batch_size, d = y.shape
 
