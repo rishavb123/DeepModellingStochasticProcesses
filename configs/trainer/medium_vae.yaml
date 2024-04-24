@@ -1,0 +1,56 @@
+_target_: dmsp.models.trainers.vae_trainer.ConditionalVAETrainer
+device: mps
+lookback: 50
+vae:
+    _target_: dmsp.models.networks.vae.ConditionedVAE
+    latent_dim: 50
+    encoder:
+        _target_: experiment_lab.common.networks.create_aggregated_network
+        module_lst:
+            - _target_: torch.nn.Identity
+            - _target_: torch.nn.Identity
+        aggregator:
+            _target_: hydra.utils.get_method
+            path: torch.cat
+        output_module:
+            _target_: experiment_lab.common.networks.create_multi_network
+            input_module:
+                _target_: experiment_lab.common.networks.create_mlp_network
+                layer_sizes:
+                    - "${eval: ${trainer.lookback} * ${data_dim} + ${data_dim}}"
+                    - 30
+                layer_activations:
+                    _target_: torch.nn.LeakyReLU
+                    negative_slope: 0.01
+                final_activation:
+                    _target_: torch.nn.LeakyReLU
+                    negative_slope: 0.01
+            module_lst:
+                - _target_: torch.nn.Linear
+                  in_features: 30
+                  out_features: ${trainer.vae.latent_dim}
+                - _target_: torch.nn.Linear
+                  in_features: 30
+                  out_features: ${trainer.vae.latent_dim}
+    decoder:
+        _target_: experiment_lab.common.networks.create_aggregated_network
+        module_lst:
+            - _target_: torch.nn.Identity
+            - _target_: torch.nn.Identity
+        aggregator:
+            _target_: hydra.utils.get_method
+            path: torch.cat
+        output_module:
+            _target_: experiment_lab.common.networks.create_mlp_network
+            layer_sizes:
+                - "${eval: ${trainer.lookback} * ${data_dim} + ${trainer.vae.latent_dim}}"
+                - 50
+                - 10
+                - ${data_dim}
+            layer_activations:
+                _target_: torch.nn.LeakyReLU
+                negative_slope: 0.01
+            final_activation: null
+optimizer_cls: torch.optim.Adam
+optimizer_kwargs:
+    lr: 0.001
