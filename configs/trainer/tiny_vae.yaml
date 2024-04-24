@@ -1,5 +1,5 @@
 _target_: dmsp.models.trainers.vae_trainer.ConditionalVAETrainer
-device: mps
+device: cuda
 lookback: 3
 vae:
     _target_: dmsp.models.networks.vae.ConditionedVAE

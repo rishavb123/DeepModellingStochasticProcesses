@@ -1,5 +1,5 @@
 _target_: dmsp.models.trainers.stochasticity_loss_trainer.StochasticityLossTrainer
-device: mps
+device: cuda
 lookback: 3
 prediction_model:
     _target_: experiment_lab.common.networks.create_mlp_network
