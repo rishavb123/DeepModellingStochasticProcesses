@@ -43,6 +43,6 @@ class NumpyDataset(Dataset):
         Returns:
             Tuple[torch.Tensor, torch.Tensor]: Input and label data.
         """
-        X = torch.tensor(self.X[idx : idx + 1, :], device=self.device, dtype=self.dtype)
-        y = torch.tensor(self.y[idx : idx + 1, :], device=self.device, dtype=self.dtype)
+        X = torch.tensor(self.X[idx, :], device=self.device, dtype=self.dtype)
+        y = torch.tensor(self.y[idx, :], device=self.device, dtype=self.dtype)
         return X, y
