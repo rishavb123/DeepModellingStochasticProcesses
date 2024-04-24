@@ -39,7 +39,9 @@ class DMSPExperiment(BaseExperiment):
             else (None if self.cfg.wandb is not None else "disabled")
         )
 
-        self.data_loader: BaseLoader = hydra.utils.instantiate(self.cfg.data_loader)
+        self.data_loader: BaseLoader = hydra.utils.instantiate(
+            self.cfg.data_loader, _convert_="partial"
+        )
         self.data_loader.load(force_redownload=self.cfg.force_redownload_dataset)
 
     def log_values(
