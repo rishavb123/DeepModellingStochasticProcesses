@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 import os
 import pandas as pd
-from torchvision.io import read_image
+
 
 class StochasticityLossTrainer(BaseTrainer):
 
@@ -34,7 +34,7 @@ class StochasticityLossTrainer(BaseTrainer):
         use_log_loss_for_backprop: bool = True,
         device: str = "cpu",
         dtype: torch.dtype = torch.float32,
-        stream_data: bool = False
+        stream_data: bool = True,
     ) -> None:
         super().__init__()
 
@@ -91,12 +91,11 @@ class StochasticityLossTrainer(BaseTrainer):
         )  # (n_examples, lookback * d)
         y = torch.tensor(y, device=self.device, dtype=self.dtype)  # (n_examples, d)
 
-        if not self.stream_data:
-            return torch.utils.data.TensorDataset(X, y)
-        
-        dataset = NumpyDataset(X, y, self.device, self.dtype)
-        return dataset
+        if self.stream_data:
+            return NumpyDataset(X, y, self.device, self.dtype)
 
+        else:
+            return torch.utils.data.TensorDataset(X, y)
 
     def sample(
         self,
