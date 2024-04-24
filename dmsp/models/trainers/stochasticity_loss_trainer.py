@@ -181,6 +181,9 @@ class StochasticityLossTrainer(BaseTrainer):
     ) -> Tuple[torch.Tensor, torch.Tensor]:
         X, y = batch  # (batch_size, lookback * d), (batch_size, d)
 
+        X = X.to(self.device)
+        y = y.to(self.device)
+
         batch_size, d = y.shape
 
         X = X.unsqueeze(1).repeat(
