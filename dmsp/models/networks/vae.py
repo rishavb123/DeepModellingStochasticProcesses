@@ -78,11 +78,12 @@ class ConditionedVAE(VAE):
         return torch.randn((n_samples, self.latent_dim), device=self.device)
 
     def sample(self, x: torch.Tensor, n_samples: int = 1):
-        batch_size, _ = x.shape
+        batch_size = x.shape[0]
         with torch.no_grad():
-            x = x.repeat((n_samples, 1, 1)).swapaxes(
-                0, 1
-            )  # (batch_size, n_samples, lookback * d)
+            if len(x.shape) == 2:
+                x = x.repeat((n_samples, 1, 1)).swapaxes(
+                    0, 1
+                )  # (batch_size, n_samples, lookback * d)
             noise = self.sample_noise(n_samples=batch_size * n_samples).reshape(
                 (batch_size, n_samples, self.latent_dim)
             )  # (batch_size, n_samples, latent_dim)
@@ -91,13 +92,13 @@ class ConditionedVAE(VAE):
     def loss(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         y_hat, mean, logvar = self.forward(x=x, y=y)
         reconstruction_loss = self.reconstruction_loss_f(y_hat, y)
-        kl_divergence_loss = -0.5 * torch.sum(1 + logvar - mean.pow(2) - logvar.exp())
+        kl_divergence_loss = 0.5 * torch.sum(1 + logvar - mean.pow(2) - logvar.exp())
         return reconstruction_loss + kl_divergence_loss
 
     def forward(
         self, x: torch.Tensor, y: torch.Tensor
     ) -> Tuple[torch.Tensor, torch.Tensor, torch.Tensor]:
-        mean, logvar = self.encoder((x, y))
+        mean, logvar = self.encoder((y, x))
         std = torch.exp(0.5 * logvar)
         z = self.reparameterization(mean=mean, std=std)
         y_hat = self.decoder((z, x))

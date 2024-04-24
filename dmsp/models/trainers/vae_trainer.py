@@ -26,16 +26,17 @@ class ConditionalVAETrainer(BaseTrainer):
         self.device = torch.device(device)
         self.dtype = dtype
 
+        self.vae = vae.to(device=self.device)
+        self.vae.set_device(self.device)
+
         self.optimizer: torch.optim.Optimizer = hydra.utils.instantiate(
             {
                 "_target_": optimizer_cls,
                 **({} if optimizer_kwargs is None else optimizer_kwargs),
             },
-            params=self.prediction_model.parameters(),
+            params=self.vae.parameters(),
             _convert_="partial",
         )
-
-        self.vae = vae.to(device=self.device)
 
     def preprocess(
         self, trajectory_list: List[np.ndarray]
@@ -93,10 +94,11 @@ class ConditionalVAETrainer(BaseTrainer):
                 ).flatten()
                 for traj in trajectory_list
             ]
+        X = [X for _ in range(n_samples)]
         X = np.array(X)
         X = torch.tensor(X, device=self.device, dtype=self.dtype).swapaxes(
             0, 1
-        )  # (n_traj, lookback * d)
+        )  # (n_traj, n_samples, lookback * d)
 
         samples = np.zeros((n_traj, n_samples, 1 + traj_length, d))
 
@@ -112,7 +114,9 @@ class ConditionalVAETrainer(BaseTrainer):
 
         for t in range(1, 1 + traj_length):
             with torch.no_grad():
-                yhat: torch.Tensor = self.vae.sample(x=X)  # (n_traj, n_samples, d)
+                yhat: torch.Tensor = self.vae.sample(
+                    x=X, n_samples=n_samples
+                )  # (n_traj, n_samples, d)
                 samples[:, :, t, :] = yhat.detach().cpu().numpy()
                 X[:, :, :-d] = X[:, :, d:]
                 X[:, :, -d:] = yhat
