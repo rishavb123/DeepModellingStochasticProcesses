@@ -1,0 +1,34 @@
+_target_: dmsp.models.trainers.vae_trainer.ConditionalVAETrainer
+device: mps
+lookback: 3
+vae:
+    _target_: dmsp.models.networks.vae.ConditionedVAE
+    latent_dim: 3
+    encoder:
+        _target_: experiments.common.networks.create_aggregated_network
+        module_lst:
+            - _target_: torch.nn.Identity
+            - _target_: torch.nn.Identity
+        aggregator: torch.cat
+        output_module:
+            _target_: experiments.common.networks.create_mlp
+            layer_sizes:
+                - "${eval: ${lookback} * ${d} + ${d}}"
+                - 3
+                - ${trainer.vae.latent_dim}
+    decoder:
+        _target_: experiments.common.networks.create_aggregated_network
+        module_lst:
+            - _target_: torch.nn.Identity
+            - _target_: torch.nn.Identity
+        aggregator: torch.cat
+        output_module:
+            _target_: experiments.common.networks.create_mlp
+            layer_sizes:
+                - "${eval: ${lookback} * ${d} + ${trainer.vae.latent_dim}}"
+                - 3
+                - ${d}
+optimizer_cls: torch.optim.Adam
+k: 5
+n_train_generated_samples: 30
+use_log_loss_for_backprop: true
