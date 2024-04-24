@@ -39,7 +39,9 @@ class DMSPExperiment(BaseExperiment):
             else (None if self.cfg.wandb is not None else "disabled")
         )
 
-        self.data_loader: BaseLoader = hydra.utils.instantiate(self.cfg.data_loader)
+        self.data_loader: BaseLoader = hydra.utils.instantiate(
+            self.cfg.data_loader, _convert_="partial"
+        )
         self.data_loader.load(force_redownload=self.cfg.force_redownload_dataset)
 
     def log_values(
@@ -65,6 +67,17 @@ class DMSPExperiment(BaseExperiment):
         epoch_num: int,
         test_trajs: List[np.ndarray],
     ) -> Dict[str, Any]:
+        """Saves the samples into wandb and the output folder.
+
+        Args:
+            trainer (BaseTrainer): The base trainer.
+            run_output_path (str): The output folder to save to.
+            epoch_num (int): The current epoch number.
+            test_trajs (List[np.ndarray]): The test trajectories to generate samples on.
+
+        Returns:
+            Dict[str, Any]: The metrics to log to wandb.
+        """
         test_trajs = trainer.validate_traj_lst(
             trajectory_list=test_trajs,
             sample_from_lookback=self.cfg.visualize_samples.sample_from_lookback,
@@ -122,6 +135,7 @@ class DMSPExperiment(BaseExperiment):
             plt.savefig(
                 f"{run_output_path}/plots/epoch_{epoch_num}/trajectory_{i}_samples.png"
             )
+            plt.close()
             m[f"trajectory_{i}_samples"] = wandb.Image(
                 f"{run_output_path}/plots/epoch_{epoch_num}/trajectory_{i}_samples.png"
             )
@@ -163,7 +177,7 @@ class DMSPExperiment(BaseExperiment):
                 model_path = self.cfg.model_path_to_load_from
             lst = model_path.split("_")
             if len(lst) > 1 and lst[-1].split(".")[0].isdigit():
-                start_epoch = int(lst[-1].split(".")[0])
+                start_epoch = int(lst[-1].split(".")[0]) + 1
             trainer.load_model(model_path)
 
         # Process and prepare the dataset
@@ -233,6 +247,16 @@ class DMSPExperiment(BaseExperiment):
                     dict_to_log={"epoch": epoch, **train_metrics, **test_metrics},
                     wandb_only_dict=wandb_only_dict,
                 )
+        else:
+            # Visualize Samples
+            if self.cfg.visualize_samples is not None:
+                wandb_only_dict = self.save_samples(
+                    trainer=trainer,
+                    run_output_path=run_output_path,
+                    epoch_num=start_epoch - 1,
+                    test_trajs=test_trajs,
+                )
+                self.log_values(dict_to_log={}, wandb_only_dict=wandb_only_dict)
 
         # Evaluate the model
         if self.cfg.eval_model:
