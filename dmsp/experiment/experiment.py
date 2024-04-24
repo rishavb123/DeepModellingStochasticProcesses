@@ -177,7 +177,7 @@ class DMSPExperiment(BaseExperiment):
                 model_path = self.cfg.model_path_to_load_from
             lst = model_path.split("_")
             if len(lst) > 1 and lst[-1].split(".")[0].isdigit():
-                start_epoch = int(lst[-1].split(".")[0])
+                start_epoch = int(lst[-1].split(".")[0]) + 1
             trainer.load_model(model_path)
 
         # Process and prepare the dataset
@@ -246,6 +246,15 @@ class DMSPExperiment(BaseExperiment):
                 self.log_values(
                     dict_to_log={"epoch": epoch, **train_metrics, **test_metrics},
                     wandb_only_dict=wandb_only_dict,
+                )
+        else:
+            # Visualize Samples
+            if self.cfg.visualize_samples is not None:
+                wandb_only_dict = self.save_samples(
+                    trainer=trainer,
+                    run_output_path=run_output_path,
+                    epoch_num=start_epoch - 1,
+                    test_trajs=test_trajs,
                 )
 
         # Evaluate the model
