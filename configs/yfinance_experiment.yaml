@@ -1,5 +1,5 @@
 experiment_name: yfinance_experiment
-load_model_from_path: false
+load_model_from_path: true
 train_model: false
 eval_model: true
 visualize_samples:
