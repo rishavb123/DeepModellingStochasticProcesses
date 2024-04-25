@@ -1,4 +1,4 @@
-_target_: dmsp.models.trainers.stochasticity_loss_trainer.StochasticityLossTrainer
+_target_: dmsp.models.trainers.gan_trainer.ConditionalGANTrainer
 device: cuda
 lookback: 5
 generator:

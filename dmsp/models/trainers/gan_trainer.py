@@ -5,20 +5,24 @@ import torch
 import torch.nn as nn
 import torch.utils.data
 import hydra
+import os
 
 from dmsp.models.trainers.base_trainer import BaseTrainer
 from dmsp.models.noise.base_noise import BaseNoise
+from dmsp.models.noise.gaussian import GaussianNoise
 from dmsp.utils.process_data import validate_traj_list, preprocess
 
 
 class ConditionalGANTrainer(BaseTrainer):
+
+    DEFAULT_NOISE_DIM = 20
 
     def __init__(
         self,
         lookback: int,
         generator: nn.Module,
         discriminator: nn.Module,
-        noise_model: BaseNoise,
+        noise_model: BaseNoise | None = None,
         discriminator_lookforward: int = 1,
         optimizer_cls: str = "torch.optim.Adam",
         optimizer_kwargs: Dict[str, Any] | None = None,
@@ -41,9 +45,14 @@ class ConditionalGANTrainer(BaseTrainer):
         self.device = torch.device(device=device)
         self.dtype = dtype
 
-        self.generator = generator
-        self.discriminator = discriminator
-        self.noise_model = noise_model
+        self.generator = generator.to(device=self.device)
+        self.discriminator = discriminator.to(device=self.device)
+        if noise_model is None:
+            self.noise_model = GaussianNoise(
+                noise_size=ConditionalGANTrainer.DEFAULT_NOISE_DIM
+            )
+        else:
+            self.noise_model = noise_model
 
         self.generator_optimizer: torch.optim.Optimizer = hydra.utils.instantiate(
             {
@@ -93,8 +102,79 @@ class ConditionalGANTrainer(BaseTrainer):
         traj_length: int = 1,
         sample_from_lookback: int = 0,
     ) -> List[np.ndarray]:
-        return super().sample(
-            trajectory_list, n_samples, traj_length, sample_from_lookback
+        n_traj = len(trajectory_list)
+        d = trajectory_list[0].shape[1]
+
+        if sample_from_lookback == 0:
+            X = [
+                np.diff(traj[-self.lookback - 1 :, :], axis=0).flatten()
+                for traj in trajectory_list
+            ]
+        else:
+            X = [
+                np.diff(
+                    traj[
+                        -self.lookback
+                        - 1
+                        - sample_from_lookback : -sample_from_lookback,
+                        :,
+                    ],
+                    axis=0,
+                ).flatten()
+                for traj in trajectory_list
+            ]
+        X = [X for _ in range(n_samples)]
+        X = np.array(X)
+        X = torch.tensor(X, device=self.device, dtype=self.dtype).swapaxes(
+            0, 1
+        )  # (n_traj, n_samples, lookback * d)
+
+        samples = np.zeros((n_traj, n_samples, 1 + traj_length, d))
+
+        for i, traj in enumerate(trajectory_list):
+            if sample_from_lookback == 0:
+                samples[i, :, 0, :] = np.repeat(traj[-1:, :], repeats=n_samples, axis=0)
+            else:
+                samples[i, :, 0, :] = np.repeat(
+                    traj[-1 - sample_from_lookback : -sample_from_lookback, :],
+                    repeats=n_samples,
+                    axis=0,
+                )
+
+        for t in range(1, 1 + traj_length):
+            with torch.no_grad():
+                noise = self.noise_model.sample(
+                    n_samples=n_traj * n_samples,
+                    device=self.device,
+                ).reshape(
+                    (
+                        n_traj,
+                        n_samples,
+                        self.noise_model.noise_size,
+                    )
+                )  # (n_traj, n_samples, noise_size)
+
+                yhat: torch.Tensor = self.generator(
+                    (noise, X)
+                )  # (n_traj, n_samples, d)
+                samples[:, :, t, :] = yhat.detach().cpu().numpy()
+                X[:, :, :-d] = X[:, :, d:]
+                X[:, :, -d:] = yhat
+
+        return list(samples.cumsum(axis=2)[:, :, 1:, :])
+
+    def load_model(self, path: str) -> None:
+        gan_dict = torch.load(path)
+        self.generator.load_state_dict(gan_dict["generator"])
+        self.discriminator.load_state_dict(gan_dict["discriminator"])
+
+    def save_model(self, path: str) -> None:
+        torch.save(
+            {
+                "generator": self.generator.state_dict(),
+                "discriminator": self.discriminator.state_dict(),
+            },
+            path,
         )
 
     def calculate_loss(
@@ -115,8 +195,8 @@ class ConditionalGANTrainer(BaseTrainer):
 
         generated_samples = []
 
-        for _ in range(self.discriminator_lookforward):
-            forward_sample = self.generator((noise, Z))  # (batch_size, d)
+        for k in range(self.discriminator_lookforward):
+            forward_sample = self.generator((noise[k], Z))  # (batch_size, d)
             Z[:, :-d] = Z[:, d:]
             Z[:, -d:] = forward_sample
             generated_samples.append(forward_sample)

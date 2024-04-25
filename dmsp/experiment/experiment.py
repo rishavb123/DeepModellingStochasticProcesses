@@ -211,7 +211,7 @@ class DMSPExperiment(BaseExperiment):
                 train_metrics = {}
                 if epoch >= start_epoch:
                     for train_batch in train_dataloader:
-                        m = trainer.train(train_batch=train_batch)
+                        m = trainer.train(train_batch=train_batch, epoch=epoch)
                         cur_batch_size = (
                             train_batch.shape[0]
                             if isinstance(train_batch, torch.Tensor)
