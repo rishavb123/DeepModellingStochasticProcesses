@@ -23,6 +23,7 @@ class ConditionalGANTrainer(BaseTrainer):
         optimizer_kwargs: Dict[str, Any] | None = None,
         train_alternator: int = 1,
         generator_prediction_loss_weight: float = 0.0,
+        stream_data: bool = False,
         device: str = "cpu",
         dtype: torch.dtype = torch.float32,
     ) -> None:
@@ -32,6 +33,7 @@ class ConditionalGANTrainer(BaseTrainer):
         self.discriminator_lookforward = discriminator_lookforward
         self.train_alternator = train_alternator
         self.generator_prediction_loss_weight = generator_prediction_loss_weight
+        self.stream_data = stream_data
 
         self.device = torch.device(device=device)
         self.dtype = dtype
