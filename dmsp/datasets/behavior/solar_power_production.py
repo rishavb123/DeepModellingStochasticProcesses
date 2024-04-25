@@ -47,7 +47,11 @@ class SolarPowerProductionLoader(BaseLoader):
         )[["id", "date", "kWh"]]
         df = df[~df["id"].isin(SolarPowerProductionLoader.REMOVE_IDS)]
         df["date"] = pd.to_datetime(df["date"])
-        df = df.pivot_table(index="date", columns="id", values="kWh", fill_value=None).ffill(axis=1).bfill(axis=1)
+        df = (
+            df.pivot_table(index="date", columns="id", values="kWh", fill_value=None)
+            .ffill(axis=1)
+            .bfill(axis=1)
+        )
         df = df[df.index < "2023-03-05 16:00:00"]
 
         data = df.values

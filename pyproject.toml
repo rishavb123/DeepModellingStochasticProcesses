@@ -23,6 +23,7 @@ Repository = "https://github.com/rishavb123/DeepModellingStochasticProcesses"
 
 [project.optional-dependencies]
 all = []
+dev = ["black"]
 
 [tool.setuptools.packages.find]
 where = ["."]

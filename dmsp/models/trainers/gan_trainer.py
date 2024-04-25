@@ -171,7 +171,10 @@ class ConditionalGANTrainer(BaseTrainer):
 
         self.train_batch_count += 1
 
-        if self.train_batch_count % (self.discriminator_steps_per_generator_step + 1) == 0:
+        if (
+            self.train_batch_count % (self.discriminator_steps_per_generator_step + 1)
+            == 0
+        ):
             self.generator_optimizer.zero_grad()
             generator_loss.backward()
             self.generator_optimizer.step()

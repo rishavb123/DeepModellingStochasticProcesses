@@ -35,7 +35,7 @@ class YFinanceLoader(BaseLoader):
 
         super().__init__(
             path=f"./data/finance/{'_'.join(symbols)}__{'__'.join([f'{k}_{kwargs[k]}' for kwargs in download_kwargs for k in kwargs])}__{'__'.join([c.replace(' ', '_') for c in columns])}_{normalize_by_first_price}/",
-            feature_names=feature_names
+            feature_names=feature_names,
         )
         self.download_kwargs = download_kwargs
         self.normalize_by_first_price = normalize_by_first_price
@@ -68,7 +68,9 @@ if __name__ == "__main__":
         columns=["Adj Close"],
         normalize_by_first_price=True,
     )
-    import pdb; pdb.set_trace()
+    import pdb
+
+    pdb.set_trace()
     loader.load()
     for d in loader.data:
         print(d.shape)

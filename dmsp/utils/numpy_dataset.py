@@ -7,6 +7,7 @@ import torch
 
 from torch.utils.data import Dataset
 
+
 class NumpyDataset(Dataset):
     """Dataset for numpy array to load into gpu memory as necessary."""
 

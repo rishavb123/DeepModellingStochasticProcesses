@@ -3,6 +3,7 @@ import numpy as np
 import torch
 from dmsp.utils.numpy_dataset import NumpyDataset
 
+
 def validate_traj_list(
     trajectory_list: List[np.ndarray], lookback: int, sample_from_lookback: int = 0
 ) -> List[np.ndarray]:
@@ -12,7 +13,15 @@ def validate_traj_list(
         if traj.shape[0] > lookback + sample_from_lookback
     ]
 
-def preprocess(trajectory_list: List[np.ndarray], device, dtype, stream_data, lookback: int, lookforward: int = 1) -> torch.utils.data.Dataset:
+
+def preprocess(
+    trajectory_list: List[np.ndarray],
+    device,
+    dtype,
+    stream_data,
+    lookback: int,
+    lookforward: int = 1,
+) -> torch.utils.data.Dataset:
     X = []
     y = []
 
@@ -25,9 +34,7 @@ def preprocess(trajectory_list: List[np.ndarray], device, dtype, stream_data, lo
     X = np.array(X)
     y = np.array(y)
 
-    X = torch.tensor(
-        X, device=device, dtype=dtype
-    )  # (n_examples, lookback * d)
+    X = torch.tensor(X, device=device, dtype=dtype)  # (n_examples, lookback * d)
     y = torch.tensor(y, device=device, dtype=dtype)  # (n_examples, d)
 
     if stream_data:
