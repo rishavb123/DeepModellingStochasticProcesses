@@ -27,6 +27,7 @@ class ConditionalVAETrainer(BaseTrainer):
 
         self.device = torch.device(device)
         self.dtype = dtype
+        self.stream_data = stream_data
 
         self.vae = vae.to(device=self.device)
         self.vae.set_device(self.device)
