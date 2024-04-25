@@ -228,10 +228,15 @@ class ConditionalGANTrainer(BaseTrainer):
         )
 
         if self.generator_prediction_loss_weight != 0:
-            prediction_noise = self.noise_model.sample(n_samples=batch_size)
-            generator_prediction = self.generator((prediction_noise, X))
+            # prediction_noise = self.noise_model.sample(
+            #     n_samples=batch_size, device=self.device
+            # )
+            # generator_prediction = self.generator((prediction_noise, X))
+            # generator_loss += self.generator_prediction_loss_weight * self.mse_loss(
+            #     generator_prediction, y[:, :d]
+            # )
             generator_loss += self.generator_prediction_loss_weight * self.mse_loss(
-                generator_prediction, y[:, :d]
+                generated_samples, y
             )
 
         return generator_loss, discriminator_loss
