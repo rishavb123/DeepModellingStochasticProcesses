@@ -126,8 +126,9 @@ class DMSPExperiment(BaseExperiment):
                             samples[sample_idx, :, feature_idx],
                             label=f"pred_sample",
                         )
+                    feature_name = self.data_loader.feature_names[feature_idx].replace("_", " ").replace("-", " ").title()
                     ax_row[sample_idx].set_title(
-                        f"Sample {sample_idx}; Feature {feature_idx}"
+                        f"Sample {sample_idx}; {feature_name}"
                     )
                     ax_row[sample_idx].set_xlabel(f"Timesteps")
                     ax_row[sample_idx].set_ylabel(f"Value")

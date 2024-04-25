@@ -12,6 +12,7 @@ from dmsp.models.trainers.base_trainer import BaseTrainer
 from dmsp.models.noise.base_noise import BaseNoise
 
 from dmsp.utils.numpy_dataset import NumpyDataset
+from dmsp.utils.process_data import validate_traj_list, preprocess
 
 
 logger = logging.getLogger(__name__)
@@ -65,37 +66,13 @@ class StochasticityLossTrainer(BaseTrainer):
 
         self.stream_data = stream_data
 
-    def validate_traj_lst(
+    def validate_traj_list(
         self, trajectory_list: List[np.ndarray], sample_from_lookback: int = 0
     ) -> List[np.ndarray]:
-        return [
-            traj
-            for traj in trajectory_list
-            if traj.shape[0] > self.lookback + sample_from_lookback
-        ]
+        return validate_traj_list(trajectory_list, self.lookback, sample_from_lookback)
 
-    def preprocess(self, trajectory_list: List[np.ndarray]) -> torch.utils.data.Dataset:
-        X = []
-        y = []
-
-        for traj in trajectory_list:
-            for t in range(self.lookback + 1, traj.shape[0]):
-                X.append(np.diff(traj[t - self.lookback - 1 : t, :], axis=0).flatten())
-                y.append(traj[t, :] - traj[t - 1, :])
-
-        X = np.array(X)
-        y = np.array(y)
-
-        X = torch.tensor(
-            X, device=self.device, dtype=self.dtype
-        )  # (n_examples, lookback * d)
-        y = torch.tensor(y, device=self.device, dtype=self.dtype)  # (n_examples, d)
-
-        if self.stream_data:
-            return NumpyDataset(X, y, self.device, self.dtype)
-
-        else:
-            return torch.utils.data.TensorDataset(X, y)
+    def preprocess(self, trajectory_list: List[np.ndarray], lookforward: int = 1) -> torch.utils.data.Dataset:
+        return preprocess(trajectory_list, self.lookback, lookforward)
 
     def sample(
         self,
