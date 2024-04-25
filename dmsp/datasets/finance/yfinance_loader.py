@@ -26,12 +26,18 @@ class YFinanceLoader(BaseLoader):
             columns (List[str] | None, optional): The columns from the yfinance return to use. Defaults to None.
             normalize_by_first_price (bool, optional): Whether or not to normalize the data by the first price downloaded. Defaults to False.
         """
-        super().__init__(
-            f"./data/finance/{'_'.join(symbols)}__{'__'.join([f'{k}_{kwargs[k]}' for kwargs in download_kwargs for k in kwargs])}__{'__'.join([c.replace(' ', '_') for c in columns])}_{normalize_by_first_price}/"
-        )
         self.symbols = symbols
-        self.download_kwargs = download_kwargs
         self.columns = ["Adj Close", "Volume"] if columns is None else columns
+        feature_names = []
+        for column in self.columns:
+            for symbol in symbols:
+                feature_names.append(f"{symbol} {column}")
+
+        super().__init__(
+            path=f"./data/finance/{'_'.join(symbols)}__{'__'.join([f'{k}_{kwargs[k]}' for kwargs in download_kwargs for k in kwargs])}__{'__'.join([c.replace(' ', '_') for c in columns])}_{normalize_by_first_price}/",
+            feature_names=feature_names
+        )
+        self.download_kwargs = download_kwargs
         self.normalize_by_first_price = normalize_by_first_price
 
     def _download_data(self) -> List[np.ndarray]:
@@ -62,6 +68,7 @@ if __name__ == "__main__":
         columns=["Adj Close"],
         normalize_by_first_price=True,
     )
+    import pdb; pdb.set_trace()
     loader.load()
     for d in loader.data:
         print(d.shape)
