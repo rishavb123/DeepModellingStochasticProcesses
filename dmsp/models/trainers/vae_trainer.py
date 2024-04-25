@@ -129,7 +129,7 @@ class ConditionalVAETrainer(BaseTrainer):
     def save_model(self, path: str) -> None:
         torch.save(self.vae.state_dict(), path)
 
-    def train(self, train_batch: torch.Tensor | List[torch.Tensor]) -> Dict[str, float]:
+    def train(self, train_batch: torch.Tensor | List[torch.Tensor], epoch: int) -> Dict[str, float]:
         self.optimizer.zero_grad()
 
         X, y = train_batch

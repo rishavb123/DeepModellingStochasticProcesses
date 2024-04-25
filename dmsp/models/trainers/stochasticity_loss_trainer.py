@@ -215,7 +215,9 @@ class StochasticityLossTrainer(BaseTrainer):
 
         return loss, log_loss
 
-    def train(self, train_batch: List[torch.Tensor]) -> torch.Dict[str, float]:
+    def train(
+        self, train_batch: List[torch.Tensor], epoch: int
+    ) -> torch.Dict[str, float]:
 
         self.optimizer.zero_grad()
 
