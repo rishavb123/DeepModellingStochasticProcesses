@@ -10,13 +10,7 @@ import inspect
 
 from dmsp.models.trainers.base_trainer import BaseTrainer
 from dmsp.models.noise.base_noise import BaseNoise
-
 from dmsp.utils.process_data import validate_traj_list, preprocess
-
-logger = logging.getLogger(__name__)
-
-import os
-import pandas as pd
 
 
 class StochasticityLossTrainer(BaseTrainer):
@@ -67,18 +61,20 @@ class StochasticityLossTrainer(BaseTrainer):
     def validate_traj_list(
         self, trajectory_list: List[np.ndarray], sample_from_lookback: int = 0
     ) -> List[np.ndarray]:
-        return validate_traj_list(trajectory_list, self.lookback, sample_from_lookback)
+        return validate_traj_list(
+            trajectory_list=trajectory_list,
+            lookback=self.lookback,
+            sample_from_lookback=sample_from_lookback,
+        )
 
-    def preprocess(
-        self, trajectory_list: List[np.ndarray], lookforward: int = 1
-    ) -> torch.utils.data.Dataset:
+    def preprocess(self, trajectory_list: List[np.ndarray]) -> torch.utils.data.Dataset:
         return preprocess(
-            trajectory_list,
-            self.device,
-            self.dtype,
-            self.stream_data,
-            self.lookback,
-            lookforward,
+            trajectory_list=trajectory_list,
+            device=self.device,
+            dtype=self.dtype,
+            stream_data=self.stream_data,
+            lookback=self.lookback,
+            lookforward=1,
         )
 
     def sample(

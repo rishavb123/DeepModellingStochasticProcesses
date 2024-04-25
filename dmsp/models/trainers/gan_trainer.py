@@ -8,6 +8,7 @@ import hydra
 
 from dmsp.models.trainers.base_trainer import BaseTrainer
 from dmsp.models.noise.base_noise import BaseNoise
+from dmsp.utils.process_data import validate_traj_list, preprocess
 
 
 class ConditionalGANTrainer(BaseTrainer):
@@ -69,30 +70,21 @@ class ConditionalGANTrainer(BaseTrainer):
     def validate_traj_lst(
         self, trajectory_list: List[np.ndarray], sample_from_lookback: int = 0
     ) -> List[np.ndarray]:
-        return [
-            traj
-            for traj in trajectory_list
-            if traj.shape[0] > self.lookback + sample_from_lookback
-        ]
+        return validate_traj_list(
+            trajectory_list=trajectory_list,
+            lookback=self.lookback,
+            sample_from_lookback=sample_from_lookback,
+        )
 
     def preprocess(self, trajectory_list: List[np.ndarray]) -> torch.utils.data.Dataset:
-        X = []
-        y = []
-
-        for traj in trajectory_list:
-            for t in range(self.lookback + 1, traj.shape[0]):
-                X.append(np.diff(traj[t - self.lookback - 1 : t, :], axis=0).flatten())
-                y.append(traj[t, :] - traj[t - 1, :])
-
-        X = np.array(X)
-        y = np.array(y)
-
-        X = torch.tensor(
-            X, device=self.device, dtype=self.dtype
-        )  # (n_examples, lookback * d)
-        y = torch.tensor(y, device=self.device, dtype=self.dtype)  # (n_examples, d)
-
-        return torch.utils.data.TensorDataset(X, y)
+        return preprocess(
+            trajectory_list=trajectory_list,
+            device=self.device,
+            dtype=self.dtype,
+            stream_data=self.stream_data,
+            lookback=self.lookback,
+            lookforward=self.discriminator_lookforward,
+        )
 
     def sample(
         self,
