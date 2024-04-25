@@ -12,14 +12,16 @@ import numpy as np
 class BaseLoader(abc.ABC):
     """The BaseLoader class for all timeseries datasets used in this project."""
 
-    def __init__(self, path: str) -> None:
+    def __init__(self, path: str, feature_names: List[str] | None = None) -> None:
         """The constructor for the data loader.
 
         Args:
             path (str): The path to load/save this data set from/to.
+            feature_names (List[str] | None, optional): List of feature names. Defaults to None.
         """
         self.path = path
         self.data: List[np.ndarray] | None = None
+        self.feature_names = feature_names
 
     def load(self, force_redownload: bool = False) -> None:
         """Loads the dataset into memory (either from the disk or using the _download data function). Stores the data in self.data.
@@ -34,6 +36,13 @@ class BaseLoader(abc.ABC):
                 shutil.rmtree(self.path)
             self.data = self._download_data()
             self.save_to_path(self.path, self.data)
+
+        if not self.feature_names and len(self.data) > 0:
+            num_features = self.data[0].shape[1]
+            self.feature_names = [f"feature_{i+1}" for i in range(num_features)]
+        elif len(self.data) > 0:
+            num_features = self.data[0].shape[1]
+            assert num_features == len(self.feature_names), f"Length of feature names, {len(self.feature_names)}, does not match number of features, {num_features}."
 
     @abc.abstractmethod
     def _download_data(self) -> List[np.ndarray]:

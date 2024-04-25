@@ -15,5 +15,5 @@ data_dim: 1
 defaults:
     - dmsp
     - data_loader/toy
-    - trainer/tiny_vae
+    # - trainer/tiny_vae
     - _self_
