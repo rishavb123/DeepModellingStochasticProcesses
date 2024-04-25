@@ -57,8 +57,8 @@ class ConditionalGANTrainer(BaseTrainer):
             _convert_="partial",
         )
 
-        self.bce_loss = torch.nn.BCELoss()
-        self.mse_loss = torch.nn.MSELoss()
+        self.bce_loss = nn.BCELoss()
+        self.mse_loss = nn.MSELoss()
 
     def validate_traj_lst(
         self, trajectory_list: List[np.ndarray], sample_from_lookback: int = 0
