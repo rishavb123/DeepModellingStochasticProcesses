@@ -20,7 +20,7 @@ def preprocess(trajectory_list: List[np.ndarray], device, dtype, stream_data, lo
     for traj in trajectory_list:
         for t in range(lookback + 1, traj.shape[0] - lookforward):
             X.append(np.diff(traj[t - lookback - 1 : t, :], axis=0).flatten())
-            y.append(np.diff(traj[t : t + lookforward, :], axis=0).flatten())
+            y.append(np.diff(traj[t - 1 : t + lookforward, :], axis=0).flatten())
             # y.append(traj[t, :] - traj[t - 1, :])
 
     X = np.array(X)
