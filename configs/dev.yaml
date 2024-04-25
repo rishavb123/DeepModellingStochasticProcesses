@@ -1,7 +1,10 @@
+trainer:
+    device: mps
 hydra:
     verbose: true
 wandb:
     mode: disabled
 defaults:
     - toy_experiment
+    - trainer/tiny_gan
     - _self_
