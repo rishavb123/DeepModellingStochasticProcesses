@@ -3,7 +3,7 @@ import numpy as np
 import torch
 from dmsp.utils.numpy_dataset import NumpyDataset
 
-def validate_traj_lst(
+def validate_traj_list(
     self, trajectory_list: List[np.ndarray], lookback: int, sample_from_lookback: int = 0
 ) -> List[np.ndarray]:
     return [
