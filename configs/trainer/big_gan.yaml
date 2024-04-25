@@ -43,7 +43,7 @@ discriminator:
 noise_model:
     _target_: dmsp.models.noise.gaussian.GaussianNoise
     noise_size: 100
-discriminator_lookforward: 100
+discriminator_lookforward: 10
 stream_data: false
 optimizer_cls: torch.optim.Adam
 optimizer_kwargs:
