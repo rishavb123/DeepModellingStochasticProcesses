@@ -45,5 +45,5 @@ stream_data: false
 optimizer_cls: torch.optim.Adam
 optimizer_kwargs:
     lr: 0.001
-train_alternator: 1
+discriminator_steps_per_generator_step: 1
 generator_prediction_loss_weight: 0

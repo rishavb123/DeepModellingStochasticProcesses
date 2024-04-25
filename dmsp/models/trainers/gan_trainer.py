@@ -21,7 +21,7 @@ class ConditionalGANTrainer(BaseTrainer):
         discriminator_lookforward: int = 1,
         optimizer_cls: str = "torch.optim.Adam",
         optimizer_kwargs: Dict[str, Any] | None = None,
-        train_alternator: int = 1,
+        discriminator_steps_per_generator_step: int = 1,
         generator_prediction_loss_weight: float = 0.0,
         stream_data: bool = False,
         device: str = "cpu",
@@ -31,7 +31,9 @@ class ConditionalGANTrainer(BaseTrainer):
 
         self.lookback = lookback
         self.discriminator_lookforward = discriminator_lookforward
-        self.train_alternator = train_alternator
+        self.discriminator_steps_per_generator_step = (
+            discriminator_steps_per_generator_step
+        )
         self.generator_prediction_loss_weight = generator_prediction_loss_weight
         self.stream_data = stream_data
 
@@ -61,6 +63,8 @@ class ConditionalGANTrainer(BaseTrainer):
 
         self.bce_loss = nn.BCELoss()
         self.mse_loss = nn.MSELoss()
+
+        self.train_batch_count = 0
 
     def validate_traj_lst(
         self, trajectory_list: List[np.ndarray], sample_from_lookback: int = 0
@@ -165,14 +169,16 @@ class ConditionalGANTrainer(BaseTrainer):
     ) -> Dict[str, Any]:
         generator_loss, discriminator_loss = self.calculate_loss(batch=train_batch)
 
-        if (epoch // self.train_alternator) % 2 == 0:
-            self.discriminator_optimizer.zero_grad()
-            discriminator_loss.backward()
-            self.discriminator_optimizer.step()
-        else:
+        self.train_batch_count += 1
+
+        if self.train_batch_count % (self.discriminator_steps_per_generator_step + 1) == 0:
             self.generator_optimizer.zero_grad()
             generator_loss.backward()
             self.generator_optimizer.step()
+        else:
+            self.discriminator_optimizer.zero_grad()
+            discriminator_loss.backward()
+            self.discriminator_optimizer.step()
 
         return {
             "train/generator_loss": generator_loss.item(),
