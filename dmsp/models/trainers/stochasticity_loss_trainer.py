@@ -71,7 +71,7 @@ class StochasticityLossTrainer(BaseTrainer):
         return validate_traj_list(trajectory_list, self.lookback, sample_from_lookback)
 
     def preprocess(self, trajectory_list: List[np.ndarray], lookforward: int = 1) -> torch.utils.data.Dataset:
-        return preprocess(trajectory_list, self.device, self.dtype, self.lookback, lookforward)
+        return preprocess(trajectory_list, self.device, self.dtype, self.stream_data, self.lookback, lookforward)
 
     def sample(
         self,
