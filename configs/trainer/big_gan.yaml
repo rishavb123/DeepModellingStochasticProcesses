@@ -1,6 +1,6 @@
 _target_: dmsp.models.trainers.gan_trainer.ConditionalGANTrainer
 device: cuda
-lookback: 10
+lookback: 100
 generator:
     _target_: experiment_lab.common.networks.create_aggregated_network
     module_lst:
@@ -13,7 +13,8 @@ generator:
         _target_: experiment_lab.common.networks.create_mlp_network
         layer_sizes:
             - "${eval: ${trainer.lookback} * ${data_dim} + ${trainer.noise_model.noise_size}}"
-            - 5
+            - 100
+            - 30
             - ${data_dim}
         layer_activations:
             _target_: torch.nn.LeakyReLU
@@ -31,7 +32,8 @@ discriminator:
         _target_: experiment_lab.common.networks.create_mlp_network
         layer_sizes:
             - "${eval: ${trainer.lookback} * ${data_dim} + ${trainer.discriminator_lookforward} * ${data_dim}}"
-            - 5
+            - 100
+            - 30
             - 1
         layer_activations:
             _target_: torch.nn.LeakyReLU
@@ -40,8 +42,8 @@ discriminator:
             _target_: torch.nn.Sigmoid
 noise_model:
     _target_: dmsp.models.noise.gaussian.GaussianNoise
-    noise_size: 10
-discriminator_lookforward: 5
+    noise_size: 100
+discriminator_lookforward: 100
 stream_data: false
 optimizer_cls: torch.optim.Adam
 optimizer_kwargs:
