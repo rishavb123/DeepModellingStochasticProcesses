@@ -11,7 +11,6 @@ import inspect
 from dmsp.models.trainers.base_trainer import BaseTrainer
 from dmsp.models.noise.base_noise import BaseNoise
 
-from dmsp.utils.numpy_dataset import NumpyDataset
 from dmsp.utils.process_data import validate_traj_list, preprocess
 
 logger = logging.getLogger(__name__)
