@@ -78,7 +78,7 @@ class DMSPExperiment(BaseExperiment):
         Returns:
             Dict[str, Any]: The metrics to log to wandb.
         """
-        test_trajs = trainer.validate_traj_lst(
+        test_trajs = trainer.validate_traj_list(
             trajectory_list=test_trajs,
             sample_from_lookback=self.cfg.visualize_samples.sample_from_lookback,
         )

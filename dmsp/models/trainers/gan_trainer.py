@@ -76,7 +76,7 @@ class ConditionalGANTrainer(BaseTrainer):
 
         self.train_batch_count = 0
 
-    def validate_traj_lst(
+    def validate_traj_list(
         self, trajectory_list: List[np.ndarray], sample_from_lookback: int = 0
     ) -> List[np.ndarray]:
         return validate_traj_list(

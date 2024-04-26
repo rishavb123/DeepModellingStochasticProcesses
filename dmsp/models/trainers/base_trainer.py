@@ -27,7 +27,7 @@ class BaseTrainer(abc.ABC):
         """
         pass
 
-    def validate_traj_lst(
+    def validate_traj_list(
         self, trajectory_list: List[np.ndarray], sample_from_lookback: int = 0
     ) -> List[np.ndarray]:
         return trajectory_list
