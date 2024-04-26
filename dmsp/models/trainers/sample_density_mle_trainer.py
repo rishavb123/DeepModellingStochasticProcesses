@@ -13,7 +13,7 @@ from dmsp.models.noise.base_noise import BaseNoise
 from dmsp.utils.process_data import validate_traj_list, preprocess
 
 
-class StochasticityLossTrainer(BaseTrainer):
+class SampleDensityMLETrainer(BaseTrainer):
 
     def __init__(
         self,

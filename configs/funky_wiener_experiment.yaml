@@ -15,5 +15,5 @@ data_dim: 2
 defaults:
     - dmsp
     - data_loader/funky_wiener
-    # - trainer/medium_slt
+    # - trainer/medium_sdmle
     - _self_

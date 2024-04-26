@@ -1,4 +1,4 @@
-_target_: dmsp.models.trainers.stochasticity_loss_trainer.StochasticityLossTrainer
+_target_: dmsp.models.trainers.sample_density_mle_trainer.SampleDensityMLETrainer
 device: cuda
 lookback: 100
 prediction_model:

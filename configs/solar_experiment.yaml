@@ -15,5 +15,5 @@ data_dim: 10
 defaults:
     - dmsp
     - data_loader/solar
-    # - trainer/big_slt
+    # - trainer/big_sdmle
     - _self_
