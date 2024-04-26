@@ -72,11 +72,14 @@ class BaseTrainer(abc.ABC):
         pass
 
     @abc.abstractmethod
-    def train(self, train_batch: torch.Tensor | List[torch.Tensor]) -> Dict[str, float]:
+    def train(
+        self, train_batch: torch.Tensor | List[torch.Tensor], epoch: int
+    ) -> Dict[str, float]:
         """Trains the model using a batch of data.
 
         Args:
             train_batch (torch.Tensor | List[torch.Tensor]): The preprocessed data to train on.
+            epoch (int): The current epoch number that this train batch is from.
 
         Returns:
             Dict[str, float]: Any training metrics to log.

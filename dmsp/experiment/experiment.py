@@ -126,10 +126,13 @@ class DMSPExperiment(BaseExperiment):
                             samples[sample_idx, :, feature_idx],
                             label=f"pred_sample",
                         )
-                    feature_name = self.data_loader.feature_names[feature_idx].replace("_", " ").replace("-", " ").title()
-                    ax_row[sample_idx].set_title(
-                        f"Sample {sample_idx}; {feature_name}"
+                    feature_name = (
+                        self.data_loader.feature_names[feature_idx]
+                        .replace("_", " ")
+                        .replace("-", " ")
+                        .title()
                     )
+                    ax_row[sample_idx].set_title(f"Sample {sample_idx}; {feature_name}")
                     ax_row[sample_idx].set_xlabel(f"Timesteps")
                     ax_row[sample_idx].set_ylabel(f"Value")
             fig.suptitle(f"Trajectory {i}")
@@ -208,7 +211,7 @@ class DMSPExperiment(BaseExperiment):
                 train_metrics = {}
                 if epoch >= start_epoch:
                     for train_batch in train_dataloader:
-                        m = trainer.train(train_batch=train_batch)
+                        m = trainer.train(train_batch=train_batch, epoch=epoch)
                         cur_batch_size = (
                             train_batch.shape[0]
                             if isinstance(train_batch, torch.Tensor)

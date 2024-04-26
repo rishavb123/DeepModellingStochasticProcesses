@@ -42,7 +42,9 @@ class BaseLoader(abc.ABC):
             self.feature_names = [f"feature_{i+1}" for i in range(num_features)]
         elif len(self.data) > 0:
             num_features = self.data[0].shape[1]
-            assert num_features == len(self.feature_names), f"Length of feature names, {len(self.feature_names)}, does not match number of features, {num_features}."
+            assert num_features == len(
+                self.feature_names
+            ), f"Length of feature names, {len(self.feature_names)}, does not match number of features, {num_features}."
 
     @abc.abstractmethod
     def _download_data(self) -> List[np.ndarray]:

@@ -7,8 +7,8 @@ import torch.utils.data.dataset
 
 from dmsp.models.trainers.base_trainer import BaseTrainer
 from dmsp.models.networks.vae import ConditionedVAE
-
 from dmsp.utils.process_data import validate_traj_list, preprocess
+
 
 class ConditionalVAETrainer(BaseTrainer):
 
@@ -40,14 +40,25 @@ class ConditionalVAETrainer(BaseTrainer):
             params=self.vae.parameters(),
             _convert_="partial",
         )
-        
+
     def validate_traj_list(
         self, trajectory_list: List[np.ndarray], sample_from_lookback: int = 0
     ) -> List[np.ndarray]:
-        return validate_traj_list(trajectory_list, self.lookback, sample_from_lookback)
+        return validate_traj_list(
+            trajectory_list=trajectory_list,
+            lookback=self.lookback,
+            sample_from_lookback=sample_from_lookback,
+        )
 
-    def preprocess(self, trajectory_list: List[np.ndarray], lookforward: int = 1) -> torch.utils.data.Dataset:
-        return preprocess(trajectory_list, self.device, self.dtype, self.stream_data, self.lookback, lookforward)
+    def preprocess(self, trajectory_list: List[np.ndarray]) -> torch.utils.data.Dataset:
+        return preprocess(
+            trajectory_list=trajectory_list,
+            device=self.device,
+            dtype=self.dtype,
+            stream_data=self.stream_data,
+            lookback=self.lookback,
+            lookforward=1,
+        )
 
     def sample(
         self,
@@ -112,7 +123,9 @@ class ConditionalVAETrainer(BaseTrainer):
     def save_model(self, path: str) -> None:
         torch.save(self.vae.state_dict(), path)
 
-    def train(self, train_batch: torch.Tensor | List[torch.Tensor]) -> Dict[str, float]:
+    def train(
+        self, train_batch: torch.Tensor | List[torch.Tensor], epoch: int
+    ) -> Dict[str, float]:
         self.optimizer.zero_grad()
 
         X, y = train_batch
