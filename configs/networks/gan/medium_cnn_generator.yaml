@@ -38,9 +38,9 @@ output_module:
         - _target_: dmsp.utils.output_shape_calculators.calc_encoder_output_size
           module_lst: ${trainer.generator.module_lst}
           aggregator: ${trainer.generator.aggregator}
-          input_sizes: 
-            - "${trainer.noise_model.noise_size}"
-            - "${eval: ${trainer.lookback} * ${data_dim}}"
+          input_sizes:
+              - "${trainer.noise_model.noise_size}"
+              - "${eval: ${trainer.lookback} * ${data_dim}}"
         - 50
         - ${data_dim}
     layer_activations:
