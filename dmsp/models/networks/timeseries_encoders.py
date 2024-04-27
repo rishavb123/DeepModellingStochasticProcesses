@@ -13,7 +13,7 @@ class TimeseriesEncoder(nn.Module):
         self,
         data_dim: int,
         encoder: nn.Module,
-        post_process_f: Callable[[Any], torch.Tensor] | None = None,
+        post_process_f: Callable[[Any], torch.Tensor] | str | None = None,
         *args,
         **kwargs,
     ) -> None:
@@ -27,9 +27,12 @@ class TimeseriesEncoder(nn.Module):
         super().__init__(*args, **kwargs)
         self.data_dim = data_dim
         self.encoder = encoder
-        self.post_process_f = (
-            (lambda x: x) if post_process_f is None else post_process_f
-        )
+        if post_process_f is None:
+            self.post_process_f = lambda x: x
+        elif type(post_process_f) == str:
+            self.post_process_f = eval(post_process_f)
+        else:
+            self.post_process_f = post_process_f
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         """The forward function for the timeseries encoder.
