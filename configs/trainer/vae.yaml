@@ -1,0 +1,11 @@
+_target_: dmsp.models.trainers.vae_trainer.ConditionalVAETrainer
+device: cuda
+lookback: 3
+vae:
+    _target_: dmsp.models.networks.vae.ConditionedVAE
+    latent_dim: 3
+    encoder: ???
+    decoder: ???
+optimizer_cls: torch.optim.Adam
+optimizer_kwargs:
+    lr: 0.001

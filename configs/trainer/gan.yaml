@@ -1,0 +1,15 @@
+_target_: dmsp.models.trainers.gan_trainer.ConditionalGANTrainer
+device: cuda
+lookback: 10
+generator: ???
+discriminator: ???
+noise_model:
+    _target_: dmsp.models.noise.gaussian.GaussianNoise
+    noise_size: 10
+discriminator_lookforward: 10
+stream_data: false
+optimizer_cls: torch.optim.Adam
+optimizer_kwargs:
+    lr: 0.001
+discriminator_steps_per_generator_step: 1
+generator_prediction_loss_weight: 0

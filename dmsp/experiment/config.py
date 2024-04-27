@@ -37,8 +37,8 @@ class DMSPConfig(BaseConfig):
     test_proportion: float = 0.2
 
     batch_size: int = 64
-    n_epochs: int = 10
-    n_epochs_per_save: int = 10
+    n_epochs: int = MISSING
+    n_epochs_per_save: int = MISSING
 
     data_dim: int = 1
 

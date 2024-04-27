@@ -39,6 +39,5 @@ def preprocess(
 
     if stream_data:
         return NumpyDataset(X, y, device, dtype)
-
     else:
         return torch.utils.data.TensorDataset(X, y)
