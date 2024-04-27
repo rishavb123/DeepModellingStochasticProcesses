@@ -16,7 +16,12 @@ aggregator:
 output_module:
     _target_: experiment_lab.common.networks.create_mlp_network
     layer_sizes:
-        - "${eval: ${trainer.noise_model.noise_size} + ${data_dim} * ${trainer.lookback}}"
+        - _target_: dmsp.utils.output_shape_calculators.calc_encoder_output_size
+          module_lst: ${trainer.prediction_model.module_lst}
+          aggregator: ${trainer.prediction_model.aggregator}
+          input_sizes:
+              - ${trainer.noise_model.noise_size} 
+              - "${eval: ${data_dim} * ${trainer.lookback}}"
         - 30
         - ${data_dim}
     layer_activations:
