@@ -9,11 +9,8 @@ visualize_samples:
     plot_subset_features: null
     fig_size_row_multiplier: 30
     fig_size_col_multiplier: 2
-n_epochs: 200
-n_epochs_per_save: 50
 data_dim: 2
 defaults:
     - dmsp
     - data_loader/funky_wiener
-    # - trainer/medium_sdmle
     - _self_

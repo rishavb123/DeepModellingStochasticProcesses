@@ -15,5 +15,4 @@ data_dim: 8
 defaults:
     - dmsp
     - data_loader/yfinance
-    # - trainer/big_sdmle
     - _self_
