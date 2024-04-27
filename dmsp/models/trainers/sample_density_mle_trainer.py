@@ -125,16 +125,12 @@ class SampleDensityMLETrainer(BaseTrainer):
                 noise = self.noise_model.sample(
                     n_samples=n_traj * n_samples,
                     device=self.device,
-                ).reshape(
-                    (
-                        n_traj,
-                        n_samples,
-                        self.noise_model.noise_size,
-                    )
-                )  # (n_traj, n_samples, noise_size)
+                )  # (n_traj * n_samples, noise_size)
 
                 yhat: torch.Tensor = self.prediction_model(
-                    (noise, X)
+                    (noise, X.reshape((-1, X.shape[-1])))
+                ).reshape(
+                    (n_traj, n_samples, d)
                 )  # (n_traj, n_samples, d)
                 samples[:, :, t, :] = yhat.detach().cpu().numpy()
                 X[:, :, :-d] = X[:, :, d:]
