@@ -158,12 +158,12 @@ class SampleDensityMLETrainer(BaseTrainer):
         noise = self.noise_model.sample(
             n_samples=batch_size * self.n_train_generated_samples,
             device=self.device,
-        ).reshape(
-            (batch_size, self.n_train_generated_samples, self.noise_model.noise_size)
-        )  # (batch_size, n_samples, noise_size)
+        )  # (batch_size * n_samples, noise_size)
 
         yhats: torch.Tensor = self.prediction_model(
-            (noise, X)
+            (noise, X.reshape((-1, X.shape[-1])))
+        ).reshape(
+            (batch_size, self.n_train_generated_samples, d)
         )  # (batch_size, n_samples, d)
 
         distances = torch.norm(
