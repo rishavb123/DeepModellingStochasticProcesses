@@ -63,8 +63,8 @@ output_module:
     _target_: experiment_lab.common.networks.create_mlp_network
     layer_sizes:
         - _target_: dmsp.utils.output_shape_calculators.calc_encoder_output_size
-          module_lst: ${trainer.generator.module_lst}
-          aggregator: ${trainer.generator.aggregator}
+          module_lst: ${trainer.discriminator.module_lst}
+          aggregator: ${trainer.discriminator.aggregator}
           input_sizes:
               - "${eval: ${trainer.discriminator_lookforward} * ${data_dim}}"
               - "${eval: ${trainer.lookback} * ${data_dim}}"

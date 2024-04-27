@@ -24,7 +24,12 @@ aggregator:
 output_module:
     _target_: experiment_lab.common.networks.create_mlp_network
     layer_sizes:
-        - "${eval: ${trainer.discriminator.module_lst.0.encoder.hidden_size} + ${trainer.discriminator.module_lst.1.encoder.hidden_size}}"
+        - _target_: dmsp.utils.output_shape_calculators.calc_encoder_output_size
+          module_lst: ${trainer.discriminator.module_lst}
+          aggregator: ${trainer.discriminator.aggregator}
+          input_sizes:
+              - "${eval: ${trainer.discriminator_lookforward} * ${data_dim}}"
+              - "${eval: ${trainer.lookback} * ${data_dim}}"
         - 50
         - 1
     layer_activations:
