@@ -1,0 +1,36 @@
+_target_: experiment_lab.common.networks.create_aggregated_network
+module_lst:
+    - _target_: torch.nn.Identity
+    - _target_: dmsp.models.networks.timeseries_encoders.TimeseriesEncoder
+      data_dim: ${data_dim}
+      encoder:
+          _target_: experiment_lab.common.networks.create_network
+          layer_cls: dmsp.models.networks.transformers.SelfAttention
+          layer_activations:
+              _target_: torch.nn.LeakyReLU
+              negative_slope: 0.01
+          n_layers: 4
+          dropout_p: 0
+          layer_kwargs:
+              - embed_dim: 2
+                num_heads: 2
+              - embed_dim: 2
+                num_heads: 2
+              - embed_dim: 2
+                num_heads: 2
+          final_activation:
+              null
+      post_process_f: "lambda x: x.reshape(x.shape[0], -1)"
+aggregator:
+    _target_: hydra.utils.get_method
+    path: torch.cat
+output_module:
+    _target_: experiment_lab.common.networks.create_mlp_network
+    layer_sizes:
+        - "${eval: ${trainer.lookback} * ${data_dim} + ${trainer.noise_model.noise_size}}"
+        - 50
+        - ${data_dim}
+    layer_activations:
+        _target_: torch.nn.LeakyReLU
+        negative_slope: 0.01
+    final_activation: null
