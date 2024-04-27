@@ -2,9 +2,6 @@ import torch
 
 
 def calc_encoder_output_size(module_lst, input_sizes, aggregator):
-    print("Calling function to calculate output shape:")
-    print(module_lst, input_sizes)
-
     assert len(module_lst) == len(
         input_sizes
     ), "Length of module lists and input sizes must be the same."
