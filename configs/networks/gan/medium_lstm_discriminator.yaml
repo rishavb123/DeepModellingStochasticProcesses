@@ -1,6 +1,14 @@
 _target_: experiment_lab.common.networks.create_aggregated_network
 module_lst:
-    - _target_: torch.nn.Identity
+    - _target_: dmsp.models.networks.timeseries_encoders.TimeseriesEncoder
+      data_dim: ${data_dim}
+      encoder:
+          _target_: torch.nn.LSTM
+          input_size: ${data_dim}
+          hidden_size: 32
+          num_layers: 1
+          dropout: 0
+      post_process_f: "lambda x: x[0][:, -1, :]"
     - _target_: dmsp.models.networks.timeseries_encoders.TimeseriesEncoder
       data_dim: ${data_dim}
       encoder:
@@ -16,8 +24,7 @@ aggregator:
 output_module:
     _target_: experiment_lab.common.networks.create_mlp_network
     layer_sizes:
-        # - "${eval: ${trainer.lookback} * ${data_dim} + ${trainer.discriminator_lookforward} * ${data_dim}}"
-        - 42
+        - "${eval: ${trainer.discriminator.module_lst.0.encoder.hidden_size} + ${trainer.discriminator.module_lst.1.encoder.hidden_size}}"
         - 50
         - 1
     layer_activations:
