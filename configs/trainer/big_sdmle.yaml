@@ -2,16 +2,24 @@ _target_: dmsp.models.trainers.sample_density_mle_trainer.SampleDensityMLETraine
 device: cuda
 lookback: 100
 prediction_model:
-    _target_: experiment_lab.common.networks.create_mlp_network
-    layer_sizes:
-        - "${eval: ${data_dim} * ${trainer.lookback} + ${trainer.noise_model.noise_size}}"
-        - 500
-        - 100
-        - ${data_dim}
-    layer_activations:
-        _target_: torch.nn.LeakyReLU
-        negative_slope: 0.01
-    final_activation: null
+    _target_: experiment_lab.common.networks.create_aggregated_network
+    module_lst:
+        - _target_: torch.nn.Identity
+        - _target_: torch.nn.Identity
+    aggregator:
+        _target_: hydra.utils.get_method
+        path: torch.cat
+    output_module:
+        _target_: experiment_lab.common.networks.create_mlp_network
+        layer_sizes:
+            - "${eval: ${data_dim} * ${trainer.lookback} + ${trainer.noise_model.noise_size}}"
+            - 500
+            - 100
+            - ${data_dim}
+        layer_activations:
+            _target_: torch.nn.LeakyReLU
+            negative_slope: 0.01
+        final_activation: null
 noise_model:
     _target_: dmsp.models.noise.gaussian.GaussianNoise
     noise_size: 100

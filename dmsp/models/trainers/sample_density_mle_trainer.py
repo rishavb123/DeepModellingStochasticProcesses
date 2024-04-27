@@ -37,9 +37,6 @@ class SampleDensityMLETrainer(BaseTrainer):
         self.dtype = dtype
         self.prediction_model = prediction_model.to(device=self.device)
         self.noise_model = noise_model
-        self.concatenate_noise = (
-            len(inspect.signature(self.prediction_model.forward).parameters) == 1
-        )
 
         self.optimizer: torch.optim.Optimizer = hydra.utils.instantiate(
             {
@@ -136,13 +133,8 @@ class SampleDensityMLETrainer(BaseTrainer):
                     )
                 )  # (n_traj, n_samples, noise_size)
 
-                if self.concatenate_noise:
-                    inp = (torch.cat((X, noise), dim=-1),)
-                else:
-                    inp = (X, noise)
-
                 yhat: torch.Tensor = self.prediction_model(
-                    *inp
+                    (noise, X)
                 )  # (n_traj, n_samples, d)
                 samples[:, :, t, :] = yhat.detach().cpu().numpy()
                 X[:, :, :-d] = X[:, :, d:]
@@ -174,12 +166,9 @@ class SampleDensityMLETrainer(BaseTrainer):
             (batch_size, self.n_train_generated_samples, self.noise_model.noise_size)
         )  # (batch_size, n_samples, noise_size)
 
-        if self.concatenate_noise:
-            inp = (torch.cat((X, noise), dim=-1),)
-        else:
-            inp = (X, noise)
-
-        yhats: torch.Tensor = self.prediction_model(*inp)  # (batch_size, n_samples, d)
+        yhats: torch.Tensor = self.prediction_model(
+            (noise, X)
+        )  # (batch_size, n_samples, d)
 
         distances = torch.norm(
             yhats - y.unsqueeze(1), dim=-1

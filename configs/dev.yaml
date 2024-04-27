@@ -5,6 +5,6 @@ hydra:
 wandb:
     mode: disabled
 defaults:
-    - funky_wiener_experiment
-    - trainer/medium_gan
+    - toy_experiment
+    - trainer/tiny_sdmle
     - _self_
