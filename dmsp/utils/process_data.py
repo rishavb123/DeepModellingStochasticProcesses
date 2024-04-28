@@ -20,11 +20,32 @@ def preprocess(
     dtype,
     stream_data,
     lookback: int,
+    dims_to_diff: List[bool] = None,
     lookforward: int = 1,
 ) -> torch.utils.data.Dataset:
     X = []
     y = []
 
+    if not dims_to_diff:
+        dims_to_diff = [ True ] * trajectory_list[0].shape[1]
+    assert len(dims_to_diff) == trajectory_list[0].shape[1]
+
+    """
+    for traj in trajectory_list:
+        for t in range(lookback + 1, traj.shape[0] - lookforward):
+            res_X = []
+            res_y = []
+            for j in range(len(dims_to_diff)):
+                if dims_to_diff[j]:
+                    res_X.append(np.diff(traj[t - lookback - 1 : t, j], axis=0).flatten())
+                    res_y.append(np.diff(traj[t - 1 : t + lookforward, j], axis=0).flatten())
+                else:
+                    res_X.append(traj[t - lookback : t, j].flatten())
+                    res_y.append(traj[t : t + lookforward, j].flatten())
+            X.append(np.concatenate(res_X))
+            y.append(np.concatenate(res_y))
+            # y.append(traj[t, :] - traj[t - 1, :])
+    """
     for traj in trajectory_list:
         for t in range(lookback + 1, traj.shape[0] - lookforward):
             X.append(np.diff(traj[t - lookback - 1 : t, :], axis=0).flatten())
