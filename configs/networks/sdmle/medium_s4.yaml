@@ -1,0 +1,36 @@
+_target_: experiment_lab.common.networks.create_aggregated_network
+module_lst:
+    - _target_: torch.nn.Identity
+    - _target_: dmsp.models.networks.timeseries_encoders.TimeseriesEncoder
+      data_dim: ${data_dim}
+      encoder:
+          _target_: s4torch.S4Model
+          d_input: ${data_dim}
+          d_model: 32
+          d_output: 32
+          n: 16
+          n_blocks: 2
+          l_max: ${trainer.lookback}
+          collapse: true
+          wavelet_tform: true
+          pooling: null
+      pre_process_f: null
+      post_process_f: null
+aggregator:
+    _target_: hydra.utils.get_method
+    path: torch.cat
+output_module:
+    _target_: experiment_lab.common.networks.create_mlp_network
+    layer_sizes:
+        - _target_: dmsp.utils.output_shape_calculators.calc_encoder_output_size
+          module_lst: ${trainer.prediction_model.module_lst}
+          aggregator: ${trainer.prediction_model.aggregator}
+          input_sizes:
+              - ${trainer.noise_model.noise_size}
+              - "${eval: ${data_dim} * ${trainer.lookback}}"
+        - 30
+        - ${data_dim}
+    layer_activations:
+        _target_: torch.nn.LeakyReLU
+        negative_slope: 0.01
+    final_activation: null

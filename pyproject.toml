@@ -16,6 +16,8 @@ dependencies = [
     "matplotlib",
     "scikit-learn",
     "opendatasets",
+    "s4torch@git+https://github.com/TariqAHassan/s4torch",
+    "pycwt",
 ]
 
 [project.urls]
