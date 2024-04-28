@@ -1,0 +1,18 @@
+experiment_name: solar_experiment
+load_model_from_path: false
+train_model: true
+eval_model: true
+visualize_samples:
+    n_samples: 5
+    traj_length: 4000
+    sample_from_lookback: 1000
+    plot_subset_features: null
+    fig_size_row_multiplier: 10
+    fig_size_col_multiplier: 16
+n_epochs: 30
+n_epochs_per_save: 50
+data_dim: 10
+defaults:
+    - dmsp
+    - data_loader/solar
+    - _self_
