@@ -11,7 +11,7 @@ visualize_samples:
     fig_size_col_multiplier: 16
 n_epochs: 30
 n_epochs_per_save: 50
-data_dim: 8
+data_dim: 4
 defaults:
     - dmsp
     - data_loader/lake
