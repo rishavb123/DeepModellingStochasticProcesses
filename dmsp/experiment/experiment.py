@@ -136,6 +136,7 @@ class DMSPExperiment(BaseExperiment):
                     ax_row[sample_idx].set_xlabel(f"Timesteps")
                     ax_row[sample_idx].set_ylabel(f"Value")
             fig.suptitle(f"Trajectory {i}")
+            fig.tight_layout()
             plt.savefig(
                 f"{run_output_path}/plots/epoch_{epoch_num}/trajectory_{i}_samples.png"
             )

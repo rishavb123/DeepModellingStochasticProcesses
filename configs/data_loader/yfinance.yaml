@@ -1,10 +1,10 @@
 _target_: dmsp.datasets.finance.yfinance_loader.YFinanceLoader
 symbols:
   - SPY
+  - QQQ
   - AMZN
   - MSFT
   - AAPL
-  - TSLA
 download_kwargs:
   - start: 2010-01-01
     end: 2023-12-31
