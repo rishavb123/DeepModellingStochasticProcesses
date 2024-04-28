@@ -77,7 +77,7 @@ class BaseLoader(abc.ABC):
         for traj in self.data:
             end_prop = begin_prop + traj.shape[0] / total_length
 
-            if cum_prop >= begin_prop and cum_prop < end_prop and end_prop < 1.0:
+            if cum_prop >= begin_prop and cum_prop < end_prop and end_prop <= 1.0:
                 split_ind = int(
                     len(traj) * (cum_prop - begin_prop) / (end_prop - begin_prop)
                 )

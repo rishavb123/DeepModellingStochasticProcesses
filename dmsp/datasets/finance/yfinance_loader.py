@@ -59,11 +59,9 @@ class YFinanceLoader(BaseLoader):
 
 if __name__ == "__main__":
     loader = YFinanceLoader(
-        symbols=["SPY", "AMZN", "QQQ", "MSFT"],
+        symbols=["SPY", "AMZN", "MSFT", "AAPL", "TSLA"],
         download_kwargs=[
-            {"start": "2022-01-01", "end": "2022-12-31"},
-            {"start": "2019-01-01", "end": "2021-12-31"},
-            {"start": "2023-01-01", "end": "2023-12-31"},
+            {"start": "2010-01-01", "end": "2023-12-31", "interval": "1d"},
         ],
         columns=["Adj Close"],
         normalize_by_first_price=True,
@@ -76,7 +74,7 @@ if __name__ == "__main__":
 
     data = loader.data[0]
 
-    for j in range(4):
+    for j in range(data.shape[1]):
         plt.plot(data[:, j])
 
     plt.show()
