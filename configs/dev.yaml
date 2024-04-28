@@ -5,6 +5,7 @@ hydra:
 wandb:
     mode: disabled
 defaults:
-    - toy_experiment
+    # - toy_experiment
+    - lake_experiment
     # - trainer/tiny_sdmle
     - _self_

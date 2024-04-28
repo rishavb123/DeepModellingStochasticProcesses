@@ -1,0 +1,18 @@
+experiment_name: lake_experiment
+load_model_from_path: false
+train_model: true
+eval_model: true
+visualize_samples:
+    n_samples: 5
+    traj_length: 2000
+    sample_from_lookback: 200
+    plot_subset_features: null
+    fig_size_row_multiplier: 10
+    fig_size_col_multiplier: 16
+n_epochs: 30
+n_epochs_per_save: 50
+data_dim: 8
+defaults:
+    - dmsp
+    - data_loader/lake
+    - _self_
