@@ -68,9 +68,6 @@ if __name__ == "__main__":
         columns=["Adj Close"],
         normalize_by_first_price=True,
     )
-    import pdb
-
-    pdb.set_trace()
     loader.load()
     for d in loader.data:
         print(d.shape)

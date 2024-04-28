@@ -40,10 +40,9 @@ output_module:
             - _target_: dmsp.utils.output_shape_calculators.calc_encoder_output_size
               module_lst: ${trainer.vae.encoder.module_lst}
               aggregator: ${trainer.vae.encoder.aggregator}
-              input_sizes: 
-                - "${trainer.vae.latent_dim}"
-                - "${eval: ${trainer.lookback} * ${data_dim}}"
-
+              input_sizes:
+                  - ${data_dim}
+                  - "${eval: ${trainer.lookback} * ${data_dim}}"
             - 30
         layer_activations:
             _target_: torch.nn.LeakyReLU
