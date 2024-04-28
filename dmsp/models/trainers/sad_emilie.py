@@ -13,7 +13,8 @@ from dmsp.models.noise.base_noise import BaseNoise
 from dmsp.utils.process_data import validate_traj_list, preprocess
 
 
-class SampleDensityMLETrainer(BaseTrainer):
+class SadEmilie(BaseTrainer):
+    """SAmple Density Estimation MaxImum LIklihood Estimate (SAD EMILIE)"""
 
     def __init__(
         self,

@@ -1,4 +1,4 @@
-_target_: dmsp.models.trainers.sample_density_mle_trainer.SampleDensityMLETrainer
+_target_: dmsp.models.trainers.sad_emilie.SadEmilie
 device: cuda
 lookback: 3
 noise_model:

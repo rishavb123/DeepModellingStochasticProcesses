@@ -7,5 +7,4 @@ wandb:
 defaults:
     # - toy_experiment
     - lake_experiment
-    # - trainer/tiny_sdmle
     - _self_
