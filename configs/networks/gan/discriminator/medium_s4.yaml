@@ -4,7 +4,7 @@ module_lst:
       data_dim: ${data_dim}
       encoder:
           _target_: s4torch.S4Model
-          d_input: ${trainer.vae.latent_dim}
+          d_input: ${trainer.discriminator_lookforward}
           d_model: 32
           d_output: 32
           n: 16
