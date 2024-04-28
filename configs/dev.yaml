@@ -6,5 +6,5 @@ wandb:
     mode: disabled
 defaults:
     # - toy_experiment
-    - lake_experiment
+    - funky_wiener_experiment
     - _self_

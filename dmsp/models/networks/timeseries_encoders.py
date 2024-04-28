@@ -53,5 +53,7 @@ class TimeseriesEncoder(nn.Module):
             torch.Tensor: The encoded vector.
         """
         return self.post_process_f(
-            self.encoder(self.pre_process_f(x.reshape((*x.shape[:-1], -1, self.data_dim))))
+            self.encoder(
+                self.pre_process_f(x.reshape((*x.shape[:-1], -1, self.data_dim)))
+            )
         )

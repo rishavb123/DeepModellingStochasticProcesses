@@ -9,10 +9,10 @@ module_lst:
           d_model: 32
           d_output: 32
           n: 16
-          n_blocks: 2
+          n_blocks: 5
           l_max: ${trainer.lookback}
           collapse: true
-          wavelet_tform: true
+          wavelet_tform: false
           pooling: null
       pre_process_f: null
       post_process_f: null
