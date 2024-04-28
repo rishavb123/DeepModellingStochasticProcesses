@@ -41,7 +41,7 @@ output_module:
               module_lst: ${trainer.vae.encoder.module_lst}
               aggregator: ${trainer.vae.encoder.aggregator}
               input_sizes:
-                  - "${trainer.vae.latent_dim}"
+                  - ${data_dim}
                   - "${eval: ${trainer.lookback} * ${data_dim}}"
             - 30
         layer_activations:
