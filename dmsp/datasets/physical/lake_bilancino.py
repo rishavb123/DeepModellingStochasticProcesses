@@ -68,6 +68,8 @@ class LakeLoader(BaseLoader):
         df = df[df.index > '2004-01-01']
 
         data = df.values
+        diff_cols = data.min(axis=0) == 0
+        data[:, diff_cols] = np.cumsum(data[:, diff_cols], axis=0)
         data -= data.mean(axis=0) * (data.min(axis=0) != 0)
         data /= data.std(axis=0)
 
@@ -80,6 +82,5 @@ if __name__ == "__main__":
 
     import matplotlib.pyplot as plt
 
-    print(loader.data[0].shape)
-    plt.plot(loader.data[0][:, 1])
+    plt.plot(loader.data[0][:, 3])
     plt.show()
