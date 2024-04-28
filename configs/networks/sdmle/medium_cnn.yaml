@@ -1,27 +1,6 @@
 _target_: experiment_lab.common.networks.create_aggregated_network
 module_lst:
-    - _target_: dmsp.models.networks.timeseries_encoders.TimeseriesEncoder
-      data_dim: ${data_dim}
-      encoder:
-          _target_: experiment_lab.common.networks.create_network
-          layer_cls: torch.nn.Conv1d
-          layer_activations:
-              _target_: torch.nn.LeakyReLU
-              negative_slope: 0.01
-          n_layers: 2
-          dropout_p: 0
-          constant_layer_kwargs:
-              kernel_size: 3
-          layer_kwargs:
-              - in_channels: ${data_dim}
-                out_channels: 2
-                stride: 2
-              - in_channels: 2
-                out_channels: 4
-                stride: 1
-          final_activation: null
-      pre_process_f: "lambda x: x.swapaxes(-1, -2)"
-      post_process_f: "lambda x: x.reshape(x.shape[0], -1)"
+    - _target_: torch.nn.Identity
     - _target_: dmsp.models.networks.timeseries_encoders.TimeseriesEncoder
       data_dim: ${data_dim}
       encoder:
@@ -57,15 +36,14 @@ output_module:
     _target_: experiment_lab.common.networks.create_mlp_network
     layer_sizes:
         - _target_: dmsp.utils.output_shape_calculators.calc_encoder_output_size
-          module_lst: ${trainer.discriminator.module_lst}
-          aggregator: ${trainer.discriminator.aggregator}
-          input_sizes:
-              - "${eval: ${trainer.discriminator_lookforward} * ${data_dim}}"
-              - "${eval: ${trainer.lookback} * ${data_dim}}"
-        - 50
-        - 1
+          module_lst: ${trainer.prediction_model.module_lst}
+          aggregator: ${trainer.prediction_model.aggregator}
+          input_sizes: 
+            - "${trainer.noise_model.noise_size}"
+            - "${eval: ${trainer.lookback} * ${data_dim}}"
+        - 30
+        - ${data_dim}
     layer_activations:
         _target_: torch.nn.LeakyReLU
         negative_slope: 0.01
-    final_activation:
-        _target_: torch.nn.Sigmoid
+    final_activation: null
