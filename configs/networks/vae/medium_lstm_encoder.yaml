@@ -1,0 +1,40 @@
+_target_: experiment_lab.common.networks.create_aggregated_network
+module_lst:
+    - _target_: torch.nn.Identity
+    - _target_: dmsp.models.networks.timeseries_encoders.TimeseriesEncoder
+      data_dim: ${data_dim}
+      encoder:
+          _target_: torch.nn.LSTM
+          input_size: ${data_dim}
+          hidden_size: 32
+          num_layers: 1
+          dropout: 0
+      post_process_f: "lambda x: x[0][:, -1, :]"
+aggregator:
+    _target_: hydra.utils.get_method
+    path: torch.cat
+output_module:
+    _target_: experiment_lab.common.networks.create_multi_network
+    input_module:
+        _target_: experiment_lab.common.networks.create_mlp_network
+        layer_sizes:
+            - _target_: dmsp.utils.output_shape_calculators.calc_encoder_output_size
+              module_lst: ${trainer.vae.encoder.module_lst}
+              aggregator: ${trainer.vae.encoder.aggregator}
+              input_sizes:
+                  - ${data_dim}
+                  - "${eval: ${trainer.lookback} * ${data_dim}}"
+            - 30
+        layer_activations:
+            _target_: torch.nn.LeakyReLU
+            negative_slope: 0.01
+        final_activation:
+            _target_: torch.nn.LeakyReLU
+            negative_slope: 0.01
+    module_lst:
+        - _target_: torch.nn.Linear
+          in_features: 30
+          out_features: ${trainer.vae.latent_dim}
+        - _target_: torch.nn.Linear
+          in_features: 30
+          out_features: ${trainer.vae.latent_dim}

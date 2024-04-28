@@ -78,16 +78,15 @@ class ConditionedVAE(VAE):
         return torch.randn((n_samples, self.latent_dim), device=self.device)
 
     def sample(self, x: torch.Tensor, n_samples: int = 1):
-        batch_size = x.shape[0]
+        # x: (batch_size * n_samples, lookback * d)
+        batch_size = x.shape[0] // n_samples
         with torch.no_grad():
-            if len(x.shape) == 2:
-                x = x.repeat((n_samples, 1, 1)).swapaxes(
-                    0, 1
-                )  # (batch_size, n_samples, lookback * d)
-            noise = self.sample_noise(n_samples=batch_size * n_samples).reshape(
-                (batch_size, n_samples, self.latent_dim)
-            )  # (batch_size, n_samples, latent_dim)
-            return self.decoder((noise, x))  # (batch_size, n_samples, d)
+            noise = self.sample_noise(
+                n_samples=batch_size * n_samples
+            )  # (batch_size * n_samples, latent_dim)
+            return self.decoder((noise, x)).reshape(
+                (batch_size, n_samples, -1)
+            )  # (batch_size, n_samples, d)
 
     def loss(self, x: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
         y_hat, mean, logvar = self.forward(x=x, y=y)

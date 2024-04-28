@@ -109,7 +109,9 @@ class ConditionalVAETrainer(BaseTrainer):
         for t in range(1, 1 + traj_length):
             with torch.no_grad():
                 yhat: torch.Tensor = self.vae.sample(
-                    x=X, n_samples=n_samples
+                    x=X.reshape((-1, X.shape[-1])), n_samples=n_samples
+                ).reshape(
+                    (n_traj, n_samples, d)
                 )  # (n_traj, n_samples, d)
                 samples[:, :, t, :] = yhat.detach().cpu().numpy()
                 X[:, :, :-d] = X[:, :, d:]
