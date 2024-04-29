@@ -18,3 +18,23 @@ git clone https://github.com/rishavb123/DeepModellingstochasticProcesses.git
 cd DeepModellingStochasticProcesses
 pip install -e .
 ```
+
+## Example Run Commands
+
+Run a conditional VAE on a yfinance experiment with a CNN architecture:
+
+```bash
+./scripts/run.sh --config-name yfinance_experiment +trainer=vae +networks/vae/encoder@trainer.vae.encoder=medium_cnn +networks/vae/decoder@trainer.vae.decoder=medium_cnn n_epochs=1000 n_epochs_per_save=30 trainer.lookback=50
+```
+
+Run SadEmilie trainer on a yfinance experiment with a CNN architecture:
+
+```bash
+./scripts/run.sh --config-name yfinance_experiment +trainer=sad_emilie +networks/sad_emilie@trainer.prediction_model=medium_cnn n_epochs=1000 n_epochs_per_save=30 trainer.lookback=50
+```
+
+Run SadEmilie trainer on a yfinance experiment with a S4 architecture with a longer sequence length:
+
+```bash
+./scripts/run.sh --config-name yfinance_experiment +trainer=sad_emilie +networks/sad_emilie@trainer.prediction_model=medium_s4 n_epochs=1000 n_epochs_per_save=30 trainer.lookback=300
+```
