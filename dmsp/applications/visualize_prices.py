@@ -17,13 +17,13 @@ model_path = "/Users/rbhagat/Downloads/22-09-15/yfinance_experiment_1714356555_0
 
 save_path = "/Users/rbhagat/Downloads/plots"
 
-START_DAY = "2021-01-01"
-END_DAY = "2023-12-31"
+START_DAY = "2020-01-01"
+END_DAY = "2022-12-31"
 
 DAYS_BEFORE = 200
 FORCE_RESAMPLE = False
 
-N_SAMPLES = 100
+N_SAMPLES = 1000
 PLOT_SAMPLES = 5
 PLOT_SAMPLES_OVERLAPPING = 30
 TRAJ_LENGTH = 400
@@ -201,6 +201,50 @@ def save_samples_overlapping(
         plt.savefig(f"{save_path}/trajectory_{i}_samples_overlapping.png")
         plt.close()
 
+def save_samples_stds(
+    trainer: SadEmilie,
+    test_trajs: List[np.ndarray],
+    cont_trajs: List[np.ndarray],
+    data_loader: BaseLoader,
+) -> Dict[str, Any]:
+    test_trajs = trainer.validate_traj_list(
+        trajectory_list=test_trajs,
+        sample_from_lookback=DAYS_BEFORE,
+    )
+    d = test_trajs[0].shape[1]
+
+    for i, (traj, samples) in enumerate(zip(test_trajs, cont_trajs)):
+        fig, ax = plt.subplots(
+            d,
+            figsize=(4, 16),
+        )
+        for feature_idx in range(d):
+            ax_row = ax[feature_idx] if d > 1 else ax
+            ax_row.plot(
+                range(
+                    len(traj) - DAYS_BEFORE,
+                    len(traj) - DAYS_BEFORE + TRAJ_LENGTH,
+                ),
+                samples[:, :, feature_idx].std(axis=0),
+                label="predicted mean",
+                color="gray",
+                alpha=0.4,
+            )
+            feature_name = (
+                data_loader.feature_names[feature_idx]
+                .replace("_", " ")
+                .replace("-", " ")
+                .title()
+            )
+            ax_row.set_title(feature_name)
+            ax_row.set_xlabel(f"Timesteps")
+            ax_row.set_ylabel(f"Value")
+
+        fig.suptitle(f"Trajectory {i}")
+        fig.tight_layout()
+        plt.savefig(f"{save_path}/trajectory_{i}_std.png")
+        plt.close()
+
 
 def main():
 
@@ -261,6 +305,12 @@ def main():
         data_loader=loader,
     )
     save_samples_overlapping(
+        trainer=trainer,
+        test_trajs=loader.data,
+        cont_trajs=future_traj_list,
+        data_loader=loader,
+    )
+    save_samples_stds(
         trainer=trainer,
         test_trajs=loader.data,
         cont_trajs=future_traj_list,
