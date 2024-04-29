@@ -53,7 +53,7 @@ class LakeLoader(BaseLoader):
             # f"{self.path}/{LakeLoader.FNAME}"
             "./data/physical/lake-characteristics/acea-water-prediction/Lake_Bilancino.csv"
         )
-        columns = ['Date','Rainfall_Le_Croci','Temperature_Le_Croci','Lake_Level','Flow_Rate']
+        columns = ['Date','Temperature_Le_Croci','Lake_Level']
         df = df[columns]
         # df = df[["id", "date", "kWh"]]
         # df = df[~df["id"].isin(LakeLoader.REMOVE_IDS)]

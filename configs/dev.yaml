@@ -7,5 +7,6 @@ wandb:
 defaults:
     # - toy_experiment
     # - funky_wiener_experiment
-    - yfinance_experiment
+    # - yfinance_experiment
+    - lake_experiment
     - _self_

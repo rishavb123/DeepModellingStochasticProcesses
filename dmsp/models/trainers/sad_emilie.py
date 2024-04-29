@@ -74,6 +74,7 @@ class SadEmilie(BaseTrainer):
             dtype=self.dtype,
             stream_data=self.stream_data,
             lookback=self.lookback,
+            dims_to_diff=self.dims_to_diff,
             lookforward=1,
         )
 
@@ -100,8 +101,8 @@ class SadEmilie(BaseTrainer):
                             np.diff(traj[-self.lookback - 1 :, j], axis=0).flatten()
                         )
                     else:
-                        res_X.append(traj[-self.lookback :, j].flatten())
-                X.append(np.stack(res_X))
+                        res_X.append(traj[-self.lookback:, j].flatten())
+                X.append(np.concatenate(res_X))
         else:
             for traj in trajectory_list:
                 res_X = []
@@ -119,7 +120,7 @@ class SadEmilie(BaseTrainer):
                             ).flatten()
                         )
                     else:
-                        res_X.append(traj[-self.lookback :, j].flatten())
+                        res_X.append(traj[-self.lookback - sample_from_lookback: - sample_from_lookback, j].flatten())
                 X.append(np.concatenate(res_X))
 
         X = [X for _ in range(n_samples)]
