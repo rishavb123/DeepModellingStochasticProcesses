@@ -5,6 +5,8 @@ symbols:
   - AMZN
   - MSFT
   - AAPL
+  - WM
+  - STEEL
 download_kwargs:
   - start: 2010-01-01
     end: 2023-12-31
