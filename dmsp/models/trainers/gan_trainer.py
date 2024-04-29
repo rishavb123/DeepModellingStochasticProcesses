@@ -95,6 +95,7 @@ class ConditionalGANTrainer(BaseTrainer):
             dtype=self.dtype,
             stream_data=self.stream_data,
             lookback=self.lookback,
+            dims_to_diff=self.dims_to_diff,
             lookforward=self.discriminator_lookforward,
         )
 
