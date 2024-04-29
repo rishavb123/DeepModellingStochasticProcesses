@@ -11,7 +11,7 @@ visualize_samples:
     fig_size_col_multiplier: 2
 n_epochs: 150
 n_epochs_per_save: 30
-data_dim: 5
+data_dim: 10
 defaults:
     - dmsp
     - data_loader/yfinance
