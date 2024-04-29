@@ -7,6 +7,9 @@ symbols:
   - AAPL
   - WM
   - STEEL
+  - VIX
+  - USDJPY=X
+  - JPYUSD=X
 download_kwargs:
   - start: 2010-01-01
     end: 2023-12-31
@@ -14,3 +17,4 @@ download_kwargs:
 columns:
   - Adj Close
 normalize_by_first_price: true
+query_separately: true
