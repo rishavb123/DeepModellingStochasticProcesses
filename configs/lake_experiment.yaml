@@ -7,11 +7,11 @@ visualize_samples:
     traj_length: 2000
     sample_from_lookback: 200
     plot_subset_features: null
-    fig_size_row_multiplier: 10
-    fig_size_col_multiplier: 16
+    fig_size_row_multiplier: 4
+    fig_size_col_multiplier: 2
 n_epochs: 30
 n_epochs_per_save: 50
-data_dim: 8
+data_dim: 4
 defaults:
     - dmsp
     - data_loader/lake
