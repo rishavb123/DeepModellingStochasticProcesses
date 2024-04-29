@@ -29,7 +29,7 @@ class SadEmilie(BaseTrainer):
         device: str = "cpu",
         dtype: torch.dtype = torch.float32,
         stream_data: bool = True,
-        dims_to_diff: List[bool] = None
+        dims_to_diff: List[bool] = None,
     ) -> None:
         super().__init__()
 
@@ -88,7 +88,7 @@ class SadEmilie(BaseTrainer):
         d = trajectory_list[0].shape[1]
 
         if not self.dims_to_diff:
-            self.dims_to_diff = [ True ] * trajectory_list[0].shape[1]
+            self.dims_to_diff = [True] * trajectory_list[0].shape[1]
 
         X = []
         if sample_from_lookback == 0:
@@ -96,20 +96,32 @@ class SadEmilie(BaseTrainer):
                 res_X = []
                 for j in range(len(self.dims_to_diff)):
                     if self.dims_to_diff[j]:
-                        res_X.append(np.diff(traj[-self.lookback - 1 :, j], axis=0).flatten())
+                        res_X.append(
+                            np.diff(traj[-self.lookback - 1 :, j], axis=0).flatten()
+                        )
                     else:
-                        res_X.append(traj[-self.lookback:, j].flatten())
+                        res_X.append(traj[-self.lookback :, j].flatten())
                 X.append(np.stack(res_X))
         else:
             for traj in trajectory_list:
                 res_X = []
                 for j in range(len(self.dims_to_diff)):
                     if self.dims_to_diff[j]:
-                        res_X.append(np.diff(traj[-self.lookback - 1 - sample_from_lookback : -sample_from_lookback, j], axis=0).flatten())
+                        res_X.append(
+                            np.diff(
+                                traj[
+                                    -self.lookback
+                                    - 1
+                                    - sample_from_lookback : -sample_from_lookback,
+                                    j,
+                                ],
+                                axis=0,
+                            ).flatten()
+                        )
                     else:
-                        res_X.append(traj[-self.lookback:, j].flatten())
+                        res_X.append(traj[-self.lookback :, j].flatten())
                 X.append(np.concatenate(res_X))
-        
+
         X = [X for _ in range(n_samples)]
         X = np.array(X)
         X = torch.tensor(X, device=self.device, dtype=self.dtype).swapaxes(
@@ -150,12 +162,14 @@ class SadEmilie(BaseTrainer):
                 res.append(samples.cumsum(axis=2)[:, :, 1:, i])
             else:
                 res.append(samples[:, :, 1:, i])
-        ret_val = np.stack(res, axis=3) 
+        ret_val = np.stack(res, axis=3)
 
         return list(ret_val)
 
     def load_model(self, path: str) -> None:
-        self.prediction_model.load_state_dict(torch.load(path))
+        self.prediction_model.load_state_dict(
+            torch.load(path, map_location=self.device)
+        )
 
     def save_model(self, path: str) -> None:
         torch.save(self.prediction_model.state_dict(), path)
